@@ -16,10 +16,6 @@ from numba import jit
 def sqrt(x):
     return np.sqrt(x)
 
-@jit(nopython=True,fastmath=True,parallel=True)
-def myabs(x):
-    return abs(x)
-
 
 ########################################################################
 # Construct full F-tilde matrix
@@ -87,7 +83,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,b,0)
-  elif myabs(nnk[0])!=myabs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
+  elif abs(nnk[0])!=abs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
     a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
     b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
@@ -113,7 +109,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,a,b)
-  elif nnk[0]==nnk[1] and myabs(nnk[0])!=myabs(nnk[2]) and nnk[0]!=0!=nnk[2]:
+  elif nnk[0]==nnk[1] and abs(nnk[0])!=abs(nnk[2]) and nnk[0]!=0!=nnk[2]:
     a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
     b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
@@ -139,7 +135,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,b,c)
-  elif myabs(nnk[0])!=myabs(nnk[1])!=myabs(nnk[2])!=myabs(nnk[0]) and nnk[0]!=0!=nnk[1] and nnk[2]!=0:
+  elif abs(nnk[0])!=abs(nnk[1])!=abs(nnk[2])!=abs(nnk[0]) and nnk[0]!=0!=nnk[1] and nnk[2]!=0:
 
     out = np.zeros((6,6))
     for i1 in range(6):

@@ -5,7 +5,9 @@ from F3 import H_mat
 import math
 import numpy as np
 import time 
+from numba import jit,njit,prange,autojit
 
+@autojit
 def detrange2(L,a,energies):
     res=[0.,0.,0.]
     lenergies= len(list(energies))
@@ -23,10 +25,10 @@ a=0.1
 start = time.time()
 
 
-energies= [3.0268, 3.028, 3.0292] # [3.027, 3.028, 3.029]  #[3.008,3.009,3.01]
+energies= [3.0282, 3.02825, 3.0283] # [3.01, 3.011, 3.012]  #[3.008,3.009,3.01]
 
 
-for i in range(5):
+for i in range(1):
     print(energies)
     res = detrange2(L,a,energies)
     print(res)

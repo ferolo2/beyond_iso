@@ -354,8 +354,8 @@ def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
             SUM = sum_000(e, L, l1,m1,l2,m2,alpha)
         elif(nnk[0]==0 and nnk[1]==0):
             SUM = sum_00a(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
-        elif nnk[0]==nnk[1]>0==nnk[2]:
-            SUM = sum_aa0(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
+#        elif nnk[0]==nnk[1]>0==nnk[2]:
+#            SUM = sum_aa0(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
         else:
             SUM = sum_nnk(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
         INT = int_nnk(e,L,nnk,l1,m1,l2,m2,alpha)
