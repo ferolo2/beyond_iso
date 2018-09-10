@@ -1,0 +1,68 @@
+import os, sys, time, pickle
+cwd = os.getcwd()
+sys.path.insert(0,cwd+'/F3')
+from F3 import H_mat
+import math
+import numpy as np
+import time 
+
+def detrange2(L,a,energies):
+    res=[0.,0.,0.]
+    lenergies= len(list(energies))
+
+    for i in prange(lenergies):        
+       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
+    return res
+
+
+
+
+
+L=5.2
+a=0.1
+start = time.time()
+
+
+energies= [3.0268, 3.028, 3.0292] # [3.027, 3.028, 3.029]  #[3.008,3.009,3.01]
+
+
+for i in range(5):
+    print(energies)
+    res = detrange2(L,a,energies)
+    print(res)
+    resaux=np.array(res)/max(res)
+
+    print(resaux)
+    
+    if(res[0]>res[1]):
+        resaux=np.dot(-1.,np.array(res))/max(res)
+    Ener=np.interp(0,resaux,energies)
+    
+    print('E=%.12f' % Ener )
+   
+    
+    if(res[0]/res[1]<0):
+        energies[2]=energies[1]
+        energies[1]=Ener
+
+    elif(res[1]/res[2]<0):
+        energies[0]=energies[1]
+        energies[1]=Ener
+    else:
+        exit()
+
+    dEner = min([abs(energies[0]-Ener),abs(energies[2]-Ener)])
+
+    energies[0] = Ener-dEner
+    energies[2] = Ener+dEner
+        
+    print(energies)
+        
+        
+end = time.time()
+print('time is:', end - start, ' s')
+
+
+
+
+
