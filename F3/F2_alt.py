@@ -1,6 +1,7 @@
 import math
 import numpy as np
-sqrt=np.sqrt; pi=np.pi
+#sqrt=np.sqrt;
+pi=np.pi
 from itertools import permutations as perms
 from scipy.linalg import block_diag
 
@@ -8,6 +9,16 @@ import sums_alt as sums
 from defns import list_nnk, shell_list, shell_nnk_list, perms_list, chop, full_matrix
 from group_theory_defns import Dmat
 from projections import l2_proj
+
+from numba import jit
+
+@jit(nopython=True,fastmath=True)
+def sqrt(x):
+    return np.sqrt(x)
+
+@jit(nopython=True,fastmath=True,parallel=True)
+def myabs(x):
+    return abs(x)
 
 
 ########################################################################
@@ -76,7 +87,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,b,0)
-  elif abs(nnk[0])!=abs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
+  elif myabs(nnk[0])!=myabs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
     a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
     b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
@@ -102,7 +113,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,a,b)
-  elif nnk[0]==nnk[1] and abs(nnk[0])!=abs(nnk[2]) and nnk[0]!=0!=nnk[2]:
+  elif nnk[0]==nnk[1] and myabs(nnk[0])!=myabs(nnk[2]) and nnk[0]!=0!=nnk[2]:
     a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
     b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
@@ -128,7 +139,7 @@ def Fmat_k(E,L,nnk,alpha):
     return out
 
   # k=(a,b,c)
-  elif abs(nnk[0])!=abs(nnk[1])!=abs(nnk[2])!=abs(nnk[0]) and nnk[0]!=0!=nnk[1] and nnk[2]!=0:
+  elif myabs(nnk[0])!=myabs(nnk[1])!=myabs(nnk[2])!=myabs(nnk[0]) and nnk[0]!=0!=nnk[1] and nnk[2]!=0:
 
     out = np.zeros((6,6))
     for i1 in range(6):
@@ -290,7 +301,7 @@ def Fmat_shell(E,L,nnk,alpha):
 # Use symmetries to speed up computation of full matrix
 def Fmat(E,L,alpha):
   shells = shell_list(E,L)
-
+  #print(shells)
   F_list = []
   for nnk in shells:
     F_list += Fmat_shell(E,L,nnk,alpha)
