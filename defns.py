@@ -1,10 +1,21 @@
 import numpy as np
-sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg
+pi=np.pi; conj=np.conjugate; LA=np.linalg
 from itertools import permutations as perms
+
+from numba import jit
 
 ####################################################################################
 # This file defines several basic functions that get called multiple times
 ####################################################################################
+
+@jit(nopython=True,fastmath=True)
+def sqrt(x):
+    return np.sqrt(x)
+
+@jit(nopython=True,fastmath=True)
+def square(x):
+    return x**2
+
 
 # om_k
 def omega(k):
@@ -90,8 +101,9 @@ def E_2pt_free_list(L,count,*args):
 
 ##########################################################
 # Convert block-matrix index to (l,m)
+@jit(nopython=True,fastmath=True,parallel=True) #FRL, it speeds up a bit. I changed the error condition to make it compatible with numba.
 def lm_idx(i):
-  if i not in range(6):
+  if i>5 or i<0:
     print('Error in lm_idx: invalid index input')
   else:
     if i==0:
@@ -105,6 +117,7 @@ def chop(arr):
   arr = np.array(arr)
   arr[abs(arr)<1e-13]=0
   return arr
+
 
 ####################################################################################
 # Create nnk_list, etc.
@@ -216,8 +229,13 @@ def shell_nnk_list(shell):
     ]
 
   # abc
-  elif 0<shell[0]<shell[1]<shell[2]:
-    return perms_list(shell)
+  elif 0<shell[0]<shell[1]<shell[2]: #FRL There was a typo here. Half of the shell was missing.
+    auxshell1 = perms_list(shell)
+    auxshell2 = 1*auxshell1
+    for i in range(len(auxshell1)):
+        auxshell2[i] = [x*-1 for x in auxshell1[i]]
+    
+    return auxshell1+auxshell2
 
   else:
     print('Error in shell_nnk_list: Invalid shell input')
@@ -269,17 +287,18 @@ def y2complex(kvec,m): # y2 = |kvec|**2 * sqrt(4pi) * Y2
     print('Error: invalid m input in y2')
 
 # Real spherical harmonics
+@jit(nopython=True,fastmath=True,parallel=True) #FRL
 def y2real(kvec,m): # y2 = sqrt(4pi) * |kvec|**2 * Y2
   if m==-2:
     return sqrt(15)*kvec[0]*kvec[1]
   elif m==-1:
     return sqrt(15)*kvec[1]*kvec[2]
   elif m==0:
-    return sqrt(5/4)*(2*kvec[2]**2-kvec[0]**2-kvec[1]**2)
+    return sqrt(5/4)*(2*square(kvec[2])-square(kvec[0])-square(kvec[1]))
   elif m==1:
     return sqrt(15)*kvec[0]*kvec[2]
   elif m==2:
-    return sqrt(15/4)*(kvec[0]**2-kvec[1]**2)
+    return sqrt(15/4)*(square(kvec[0])-square(kvec[1]))
   else:
     print('Error: invalid m input in y2real')
 
@@ -289,6 +308,8 @@ def y2(kvec,m,Ytype):
     return y2real(kvec,m)
   else:
     return y2complex(kvec,m)
+
+
 
 
 ####################################################################################

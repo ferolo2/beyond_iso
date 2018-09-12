@@ -29,6 +29,7 @@ def l2_proj(M):
     for j in range(N):
       j_min = 5*j;   j_max = 5*(j+1)
       J_min = 6*j+1; J_max = 6*(j+1)
+
       M22[i_min:i_max,j_min:j_max] = M[I_min:I_max,J_min:J_max]
   return M22
 
@@ -125,12 +126,14 @@ def P_irrep_22(E,L,I):
 
 # Irrep subspace projection matrix onto specific shell & l (acts on full matrix)
 def P_irrep_subspace_o_l(E,L,I,shell,l,lblock=False):
+
   P_block_list = []
   for nk in defns.shell_list(E,L):
     if list(nk) == list(shell):
       P_block_list.append( P_irrep_o_l(shell,l,I,lblock) )
     else:
       P_block_list.append( np.zeros(P_irrep_o_l(nk,l,I,lblock).shape ))
+
   P_I = block_diag(*P_block_list)
 
   elist, vlist = LA.eig(P_I)
@@ -214,20 +217,12 @@ def evec_decomp(v,E,L,I):
   c0_list =[]
   c2_list = []
   shells = defns.shell_list(E,L)
-  N = len(defns.list_nnk(E,L))
   for shell in shells:
-    if len(v) == N:
-      P0 = P_irrep_subspace_o_l(E,L,I,shell,0,lblock=True)
-      P2 = np.zeros((N,0))
-    elif len(v) == 5*N:
-      P0 = np.zeros((5*N,0))
-      P2 = P_irrep_subspace_o_l(E,L,I,shell,2,lblock=True)
-    elif len(v) == 6*N:
-      P0 = P_irrep_subspace_o_l(E,L,I,shell,0)
-      P2 = P_irrep_subspace_o_l(E,L,I,shell,2)
-   
-    c0 = sum([abs(np.dot(v,P0[:,i]))**2 for i in range(P0.shape[1])])/LA.norm(v)**2
-    c2 = sum([abs(np.dot(v,P2[:,i]))**2 for i in range(P2.shape[1])])/LA.norm(v)**2
+    P0 = P_irrep_subspace_o_l(E,L,I,shell,0)
+    P2 = P_irrep_subspace_o_l(E,L,I,shell,2)
+    
+    c0 = sum([np.dot(v,P0[:,i])**2 for i in range(P0.shape[1])])/LA.norm(v)**2
+    c2 = sum([np.dot(v,P2[:,i])**2 for i in range(P2.shape[1])])/LA.norm(v)**2
     
     c0_list.append(c0)
     c2_list.append(c2)

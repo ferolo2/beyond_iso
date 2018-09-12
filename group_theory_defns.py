@@ -1,7 +1,13 @@
 import numpy as np
-sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg
+pi=np.pi; conj=np.conjugate; LA=np.linalg
 from itertools import permutations as perms
 import defns
+
+from numba import jit 
+@jit(nopython=True,fastmath=True)
+def sqrt(x):
+    return np.sqrt(x)
+
 
 ####################################################################################
 # Group theory definitions

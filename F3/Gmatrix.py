@@ -4,12 +4,25 @@ import numpy as np
 import sums_alt as sums
 import F2_alt as F2
 from defns import y2, list_nnk, lm_idx, chop, full_matrix
+from numba import jit
+
+@jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%                                                                                                                       
+def npsqrt(x):
+    return np.sqrt(x)
+
+@jit(nopython=True,parallel=True,fastmath=True) #FRL this speeds up scalar prod of two vectors. DONT use for matrices.
+def mydot(x,y):
+    res = 0.
+    for i in range(3):
+        res+=x[i]*y[i]
+    return res
+
 
 def ktinvroot(e,L,nk):
     k = nk*2*math.pi/L
-    omk = np.sqrt(1+k**2)       
-    E2k = np.sqrt(e**2 + 1 - 2*e*omk)
-    return 1/np.sqrt(32.*math.pi*omk*E2k )
+    omk = npsqrt(1+k**2)       
+    E2k = npsqrt(e**2 + 1 - 2*e*omk)
+    return 1/npsqrt(32.*math.pi*omk*E2k )
 
 def rho1mH(e, L, nk):
     k = nk*2*math.pi/L;
@@ -17,7 +30,7 @@ def rho1mH(e, L, nk):
 #    print(1-sums.E2a2(e,k))
 
     if hhk<1:
-        return np.sqrt(1-sums.E2a2(e,k))*(1-hhk)
+        return npsqrt(1-sums.E2a2(e,k))*(1-hhk)
     else:
         return 0.
 
@@ -25,12 +38,12 @@ def rho1mH(e, L, nk):
 def boost(nnp, nnk,e):
     nnppar = [0,0,0]
     if(sums.norm(nnk)>0):
-        nnppar = np.multiply(np.dot(nnk,nnp)/sums.norm(nnk)**2, nnk)
+        nnppar = np.multiply(mydot(nnk,nnp)/sums.norm(nnk)**2, nnk)
     nnpperp = nnp - nnppar
 
     gamma = sums.gam(e, sums.norm(nnk))
-    omp = np.sqrt(1+sums.norm(nnp)**2)
-    omk = np.sqrt(1+sums.norm(nnk)**2)
+    omp = npsqrt(1+sums.norm(nnp)**2)
+    omk = npsqrt(1+sums.norm(nnk)**2)
     
     nnpparboost = np.multiply(nnppar, gamma) + np.multiply( np.multiply(nnk, gamma), (omp)/(e-omk ))
 
@@ -44,8 +57,8 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
     p = sums.norm(nnp) * 2. *math.pi/L
     k = sums.norm(nnk) * 2. *math.pi/L
     pk = sums.norm(np.add(nnk,nnp)) * 2. *math.pi/L
-    omp = np.sqrt(1+p**2)
-    omk = np.sqrt(1+k**2)
+    omp = npsqrt(1+p**2)
+    omk = npsqrt(1+k**2)
     #ompk = np.sqrt(1+pk**2)
     
     bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2   
@@ -87,7 +100,8 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
 def Gmat(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
-
+  #print(nnk_list)
+  #print(N)
   Gfull = []
   for p in range(N):
     nnp = list(nnk_list[p])
@@ -126,7 +140,7 @@ def Gmat00(E,L):
   return chop(Gfull)
 
 
-# Just compute l'=l=2 portion
+# Just compute l'=l=2 portion                                                                                                                                                            
 def Gmat22(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
@@ -144,7 +158,7 @@ def Gmat22(E,L):
           mp = i-2
           m = j-2
           Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m)
-      Gp.append(Gpk)        
+      Gp.append(Gpk)
     Gfull.append(Gp)
   return chop(np.block(Gfull))
 
