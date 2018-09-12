@@ -210,14 +210,14 @@ def sum_000(e, L,l1,m1,l2,m2,alpha):
         for n1 in range(0,nmax+1):
             for n2 in range(0,nmax+1):
                 for n3 in range(0,nmax+1):
-                    factor=0
-                    if(n1>0):
-                        factor+=1
-                    if(n2>0):
-                        factor+=1
-                    if(n3>0):
-                        factor+=1
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube. 
+                        factor=0
+                        if(n1>0):
+                            factor+=1
+                        if(n2>0):
+                            factor+=1
+                        if(n3>0):
+                            factor+=1
                         ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
         return (2*pi/L)**(l1+l2) * ressum # TB, no q
 
@@ -246,12 +246,12 @@ def sum_00a(e, L,nnk,l1,m1,l2,m2,alpha):
         for n1 in range(0,nmax+1):
             for n2 in range(0,nmax+1):
                 for n3 in range(-nmax,nmax+1):
-                    factor=0
-                    if(n1>0):
-                        factor+=1
-                    if(n2>0):
-                        factor+=1
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube. 
+                        factor=0
+                        if(n1>0):
+                            factor+=1
+                        if(n2>0):
+                            factor+=1
                         ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
             
@@ -285,10 +285,10 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
         for n1 in range(-nmax,nmax+1):
             for n2 in range(-nmax,nmax+1):
                 for n3 in range(0,nmax+1):
-                    factor=0
-                    if(n3>0):
-                        factor+=1                        
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube. 
+                        factor=0
+                        if(n3>0):
+                            factor+=1            
                         ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
             
