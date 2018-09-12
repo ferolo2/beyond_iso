@@ -176,7 +176,8 @@ def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha):
         for n1 in range(-nmax,nmax+1):
             for n2 in range(-nmax,nmax+1):
                 for n3 in range(-nmax,nmax+1):
-                    ressum += summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
+                    if(square(n1)+square(n2)+square(n3)<square(nmax)): #FRL Sphere instead of cube. 
+                        ressum += summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
             
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL

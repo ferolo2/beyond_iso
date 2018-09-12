@@ -30,10 +30,15 @@ def H(E,L,npvec,lp,mp,nkvec,l,m,a0,r0,P0,a2,alpha):
 
 # Construct full H matrix (new structure, uses faster Fmat)
 def Hmat(E,L,a0,r0,P0,a2,alpha):
-  Ft = F2_alt.Fmat(E,L,alpha)
-  Gt = Gmatrix.Gmat(E,L)
   K2it = K2i_mat.K2inv_mat(E,L,a0,r0,P0,a2)
+  Gt = Gmatrix.Gmat(E,L)
+  Ft = F2_alt.Fmat(E,L,alpha)
 
+#  print(np.shape(K2it))
+#  print(np.shape(Ft))
+#  print(np.shape(Gt))
+  
+  
   return chop(K2it + Ft + Gt)
 
 
@@ -42,7 +47,7 @@ def Hmat00(E,L,a0,r0,P0,alpha):
   Ft00 = F2_alt.Fmat00(E,L,alpha)
   Gt00 = Gmatrix.Gmat00(E,L)
   K2it00 = K2i_mat.K2inv_mat00(E,L,a0,r0,P0)
-
+  
   return chop(K2it00 + Ft00 + Gt00)
 
 

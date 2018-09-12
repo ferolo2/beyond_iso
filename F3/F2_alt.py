@@ -301,7 +301,7 @@ def Fmat_shell(E,L,nnk,alpha):
 # Use symmetries to speed up computation of full matrix
 def Fmat(E,L,alpha):
   shells = shell_list(E,L)
-
+  #print(shells)
   F_list = []
   for nnk in shells:
     F_list += Fmat_shell(E,L,nnk,alpha)

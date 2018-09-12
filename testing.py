@@ -5,6 +5,7 @@ from F3 import H_mat
 from F3 import F2_alt as F2
 from F3 import K2i_mat as K2
 from F3 import Gmatrix as Gm
+import defns
 import math
 import numpy as np
 import time 
@@ -27,31 +28,26 @@ def detrange2(L,a,energies):
 
 
 
-L=5.2
-E=3.0282
-nnk = np.array([0,0,0])
+L=18
+E=3.0007
+nnk = [1,2,3]
 alpha=0.5
 
+#Fmat_k(E,L,nnk,alpha)
+
 #Gt = Gmatrix.Gmat(E,L)
-print(np.diag(Gm.Gmat(E,L)))
-print(np.linalg.det(Gm.Gmat(E,L)))
 
 
 start = time.time()
-print(sums.sum_nnk(E,L,nnk,2,0,2,0,alpha))
+#shell_nnk_list
+print(defns.shell_nnk_list(nnk))
+#print(F2.Fmat_shell(E,L,nnk,alpha))
+#print(np.shape(F2.Fmat_shell(E,L,nnk,alpha)))
+
+#print(sums.sum_nnk(E,L,nnk,2,0,2,0,alpha))
 end = time.time()
 print('time is:', end - start, ' s')
 
-
-
-
-
-
-start = time.time()
-#print(sums.sum_000(E,L,nnk,2,0,2,0,alpha))
-print(sums.sum_000(E,L,2,0,2,0,alpha))
-end = time.time()
-print('time is:', end - start, ' s')
 
 
 

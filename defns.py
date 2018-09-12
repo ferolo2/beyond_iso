@@ -230,8 +230,13 @@ def shell_nnk_list(shell):
     ]
 
   # abc
-  elif 0<shell[0]<shell[1]<shell[2]:
-    return perms_list(shell)
+  elif 0<shell[0]<shell[1]<shell[2]: #FRL There was a typo here. Half of the shell was missing.
+    auxshell1 = perms_list(shell)
+    auxshell2 = 1*auxshell1
+    for i in range(len(auxshell1)):
+        auxshell2[i] = [x*-1 for x in auxshell1[i]]
+    
+    return auxshell1+auxshell2
 
   else:
     print('Error in shell_nnk_list: Invalid shell input')

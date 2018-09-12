@@ -100,7 +100,8 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
 def Gmat(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
-
+  #print(nnk_list)
+  #print(N)
   Gfull = []
   for p in range(N):
     nnp = list(nnk_list[p])

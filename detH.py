@@ -13,24 +13,61 @@ def detrange2(L,a,energies):
     lenergies= len(list(energies))
 
     for i in prange(lenergies):        
-       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
+#       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
+#        res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,0.25,0.5))
+        res[i]= np.linalg.det(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))
+
+#       Hmat00(E,L,a0,r0,P0,alpha)
+    return res
+
+
+def myreal(arr):
+    out=list(arr)
+    for i in range(len(arr)):
+        out[i] = arr[i].real
+    return out
+
+
+@autojit
+def EWrange2(L,a,energies):
+    res=[0.,0.,0.]
+    lenergies= len(list(energies))
+
+
+#    aux= np.linalg.eig(H_mat.Hmat(energies[0],L,a,0.,0.,0.25,0.5))
+    
+#    print(sorted(aux[0]))
+#    print(aux[1])
+        
+#    exit()
+    
+    for i in prange(lenergies):        
+#       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
+#        res[i]= sorted(np.linalg.eig(H_mat.Hmat(energies[i],L,a,0.,0.,0.25,0.5))[0])[-1].real
+        res[i]= sorted(np.linalg.eig(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))[0])[-1].real
+        
+#        print(res[i])
+        
+#        res[i]= np.linalg.det(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))
+
+#       Hmat00(E,L,a0,r0,P0,alpha)
     return res
 
 
 
 
 
-L=5.2
+
+L=25
 a=0.1
 start = time.time()
 
+energies= [3.0002440383032125, 3.0002440383734075, 3.0002440384436024] # [3.000204029622465, 3.0002352028624968, 3.000263761025286]# [3.0003351812227046, 3.0003351812227095, 3.0003351812227144] 
 
-energies= [3.028, 3.02825, 3.0283] # [3.01, 3.011, 3.012]  #[3.008,3.009,3.01]
 
-
-for i in range(1):
+for i in range(4):
     print(energies)
-    res = detrange2(L,a,energies)
+    res = EWrange2(L,a,energies)
     print(res)
     resaux=np.array(res)/max(res)
 

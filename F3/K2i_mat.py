@@ -38,6 +38,7 @@ def K2inv(E,kvec,l,m,a0,r0,P0,a2):
 # Make full K2inv matrix (new structure)
 def K2inv_mat(E,L,a0,r0,P0,a2):
   nnk_list = defns.list_nnk(E,L)
+  #print(nnk_list)
   N = len(nnk_list)
 
   K2i_full = []
