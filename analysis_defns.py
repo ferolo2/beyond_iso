@@ -97,7 +97,6 @@ def F3i_22_I_eigs_list( E_list, L, F3_22_list, I, flip=False ):
     out.append( F3i_I_eigs )
   return out
 
-
 ######################################
 # Pick out eigenvalues closest to zero
 def small_eig_list( eig_array_list ):
@@ -238,7 +237,7 @@ def root_finder_secant(E_list, eig_array_list, f_eigs, inputs, E0=0, order=3):
     return abs(smallest)
 
   
-  return secant(smallest_eig,E0,tol=1e-8,maxiter=30)
+  return secant(smallest_eig,E0,tol=1e-8,maxiter=20)
 
 
 # Secant root-finding method

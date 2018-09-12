@@ -88,30 +88,28 @@ L_list = [5.0]
 
 ####################################################################################
 # Eigenvalue analysis
-#E=3.1; L=5.0
-#a0=0.1; r0=0; P0=0; a2=1
-#I = 'T2-'
-## print(defns.shell_list(E,L))
-#
-#P = proj.P_irrep_full(E,L,I)
-#Psub = proj.P_irrep_subspace(E,L,I)
-#M = F3_mat.F3mat(E,L,a0,r0,P0,a2,alpha)
-#Mi = defns.chop(LA.inv(M))
-##M = Gmatrix.Gmat(E,L)
-#
-#eigs = sorted(defns.chop(LA.eigvals(Mi)))
-#eigs1 = sorted(defns.chop(LA.eigvals(defns.chop(P@Mi@P)).real))
-#eigs2 = sorted(LA.eigvals(defns.chop(Psub.T@Mi@Psub)).real)
-#
-##eigs3 = sorted(defns.chop(LA.eigvals(defns.chop(LA.inv(P@M@P)))))
-#eigs4 = sorted(LA.eigvals(defns.chop(LA.inv(Psub.T@M@Psub))).real)
-#
-#print([e for e in eigs1 if abs(e)>1e-10],'\n')
-#print(eigs2,'\n')
-##print([e for e in eigs3 if abs(e)>0],'\n')
-#print(eigs4,'\n')
-#
-#print([e for e in eigs if round(e,4) in [round(i,4) for i in eigs2]])
+#E=4.21193818; 
+E=4.2; L=5.0
+shell = [0,0,1]; l=0
+I = 'T2-'
+# print(defns.shell_list(E,L))
+
+# P = proj.P_irrep_full(E,L,I)
+# Psub = proj.P_irrep_subspace(E,L,I)
+# M = Gmatrix.Gmat(E,L)
+
+# eigs = sorted(defns.chop(LA.eigvals(M)))
+# eigs1 = sorted(defns.chop(LA.eigvals(defns.chop(P@M@P))))
+# eigs2 = sorted(LA.eigvals(defns.chop(Psub.T@M@Psub)))
+
+# Q = defns.chop(LA.qr(Psub.real)[0])
+# #print(Q)
+# #print(np.dot(Q[:,0],Q[:,1]))
+# eigs3 = sorted(LA.eigvals(defns.chop(Q.T@M@Q)))
+
+# print([e for e in eigs1 if abs(e)>0],'\n')
+# print(eigs3,'\n')
+# print(eigs)
 
 ###########################
 # Check projection matrix diagonalization
@@ -192,9 +190,10 @@ L_list = [5.0]
 # print(xx2_TB(E,5,[0,0,1]))
 # print(rr2_TB(E,5,[0,0,1],[0,0,0]))
 
+print(proj.P_irrep_subspace_22(3.1,5,'E+').shape)
 
 import roots_master
-roots_master.main()
+#roots_master.main()
 
 
 ####################################################################################

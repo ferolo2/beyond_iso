@@ -1,8 +1,7 @@
 import numpy as np
 sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg
 from matplotlib import pyplot as plt
-plt.switch_backend('agg')
-import os, pickle, time
+import pickle, time
 import defns, projections as proj, analysis_defns as AD, group_theory_defns as GT
 from F3 import F3_mat
 
@@ -17,14 +16,14 @@ def main():
   shell = 'all'
   l = 'both'
 
-  E_MIN = 4.2
-  E_MAX = 4.3
+  E_MIN = 3.1
+  E_MAX = 3.1
   L = 5
 
   show_eigs = False
 
-  find_root = True
-  E0 = 4.25 # initial guess for root-finder
+  find_root = False
+  E0 = 4.342 # initial guess for root-finder
   order = 1 # polynomial order used for fit
 
   new_plots = False
@@ -48,36 +47,23 @@ def main():
     # Define parameters (necessary for several functions)
 
     # K2 parameters
-    
     # a0=-10; r0=0.5; P0=0.5; a2=-1
     # K2_dir = 'a0=m10_r0=0.5_P0=0.5_a2=m1/'
 
-    #a0=0.1; r0=0; P0=0; a2=0
-    
-    #a0=0.1; r0=0; P0=0; a2=0.1
+    # a0=0.1; r0=0; P0=0; a2=1
+    # K2_dir = 'a0=0.1_r0=0_P0=0_a2=1/'
 
-    #a0=0.1; r0=0; P0=0; a2=0.3
+    # a0=0.1; r0=0; P0=0; a2=0.5
+    # K2_dir = 'a0=0.1_r0=0_P0=0_a2=0.5/'
 
-    #a0=0.1; r0=0; P0=0; a2=0.5
+    # a0=0.1; r0=0; P0=0; a2=0.1
+    # K2_dir = 'a0=0.1_r0=0_P0=0_a2=0.1/'
 
-    #a0=0.1; r0=0; P0=0; a2=0.7
+    a0=0.1; r0=0; P0=0; a2=0
+    K2_dir = 'a0=0.1_r0=0_P0=0_a2=0/'
 
-    #a0=0.1; r0=0; P0=0; a2=0.9
-
-    a0=0.1; r0=0; P0=0; a2=1
-
-
-    #a0=0; r0=0; P0=0; a2=0.1
-    
-    #a0=0; r0=0; P0=0; a2=0.3
-
-    #a0=0; r0=0; P0=0; a2=0.5
-
-    #a0=0; r0=0; P0=0; a2=0.7
-    
-    #a0=0; r0=0; P0=0; a2=0.9
-    
-    #a0=0; r0=0; P0=0; a2=1
+    # a0=0; r0=0; P0=0; a2=0.1
+    # K2_dir = 'a0=0_r0=0_P0=0_a2=0.1/'
 
 
     # F2_KSS parameter
@@ -85,23 +71,16 @@ def main():
 
     
     # Data & plot directories
-    K2_dir = 'a0='+str(a0)+'_r0='+str(r0)+'_P0='+str(P0)+'_a2='+str(a2)+'/'
     data_dir = 'Data/'+K2_dir
     plot_dir = 'Plots/'+K2_dir
-    
-    if not os.path.exists(data_dir):
-      os.makedirs(data_dir)
-    if not os.path.exists(plot_dir):
-      os.makedirs(plot_dir)
-  
+      
 
     # Total CM energy & lattice size (lists)
-    E_list = [2.9,2.95,#2.99,2.995,2.999,2.9999,
-    3.0001,#3.001,3.005,3.01,
+    E_list = [2.9,2.95,2.99,2.995,2.999,2.9999,3.0001,3.001,3.005,3.01,
     #3.0318609166490167, # A1+ single root
     3.03186092,
     3.05,3.1,3.15,
-    #3.16303178,
+    3.16303178,
     #3.1630317882, # T1+ triple root
     3.16303179,
     3.2,3.25,3.3,
@@ -127,28 +106,20 @@ def main():
     #3.9679888998546713, # old root of Ftilde before removing q's
     #3.96798890,3.968,3.969,
     3.97,#3.973,3.975,3.977,
-    3.98,3.99,
+    3.98,
+    3.99,
     4.0,4.05,4.1,
     #4.105402464984292, # T2- triple root
     4.10540247,
-    4.15,4.16,4.17,4.19,4.195,4.2,4.205,
+    4.15,4.16,4.17,4.19,4.2,
     #4.209892475540663, # T1+ triple root
     4.20989248,
     4.21,
     4.21193816,
-    4.21193817,
-    #4.211938171368993, # non-interacting energy E1         #############
+    #4.211938171368993, # non-interacting energy E1
     4.21193818,
-    #4.21193947,
-    4.21193948, # A1+ single root for a0=0, a2=0.1 ?
-    #4.21193949,
-    4.2125,4.213,4.2135,4.214,4.2145,4.215,
-    4.22,4.23,4.24,
-    #4.2421632582173645, # E+ double root for a0=0.1, a2=0 (r0=P0=0)
-    4.24216326,
-    4.25,4.27,
-    #4.2784624639738, # A1+ single root for a0=0.1, a2=0 (r0=P0=0)
-    4.27846247,
+    4.215,
+    4.22,4.25,4.27,
     4.3,4.32,4.33,#4.33374164,
     #4.333741640225551, # A1+ single root
     4.33374165,
@@ -263,12 +234,7 @@ def main():
 
 
           if show_eigs==True:
-            for i in range(len(E_list)):
-              E = E_list[i]
-              x = irrep_eigs_array_list[i]
-              #x = [y for y in x if abs(y)<1e3]
-              print(E,x)
-              #print(E,min(x,key=abs))
+            print(irrep_eigs_array_list)
 
           if find_root==True:
             root = AD.root_finder_secant(E_list,irrep_eigs_array_list,f_eigs,inputs,E0,order)
