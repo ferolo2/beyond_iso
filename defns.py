@@ -59,7 +59,7 @@ def E_free_list(L,count,*args):
       m12_2 = sum([x**2 for x in [-nvec_list[i1][i]-nvec_list[i2][i] for i in range(3)]])
 
       E1 = sqrt((2*pi/L)**2*m1_2+1)
-      E2 = sqrt((2*pi/L)**2*m2_2+1)        
+      E2 = sqrt((2*pi/L)**2*m2_2+1)
       E12 = sqrt((2*pi/L)**2*m12_2+1)
 
       out[tuple(sorted([m1_2,m2_2,m12_2]))] = E1+E2+E12
@@ -103,13 +103,11 @@ def E_2pt_free_list(L,count,*args):
 # Convert block-matrix index to (l,m)
 @jit(nopython=True,fastmath=True,parallel=True) #FRL, it speeds up a bit. I changed the error condition to make it compatible with numba.
 def lm_idx(i):
-  if i>5 or i<0:
-    print('Error in lm_idx: invalid index input')
+  i = i%6
+  if i==0:
+    [l,m] = [0,0]
   else:
-    if i==0:
-      [l,m] = [0,0]
-    else:
-      [l,m] = [2,i-3]
+    [l,m] = [2,i-3]
   return [l,m]
 
 # Replace small real numbers in array with zero
@@ -138,9 +136,9 @@ def Emin(shell,L,alpH=-1,xmin=0.01):
   c = (3-alpH)*xmin + (1+alpH)
   k = LA.norm([x*2*pi/L for x in shell])
   return omega(k) + sqrt(k**2+c)
-  
 
-# Create list of shells/orbits 
+
+# Create list of shells/orbits
 # Permutation conventions: 000, 00a, aa0, aaa, ab0, aab, abc
 def shell_list(E,L):
   nmaxreal = kmax(E)*L/(2*pi)
@@ -156,9 +154,9 @@ def shell_list(E,L):
             shells.append((n2,n3,n1))
           else:
             shells.append((n1,n2,n3))
-  # Sort by magnitude         
+  # Sort by magnitude
   shells = sorted(shells, key=lambda k: LA.norm(k))
-  return shells 
+  return shells
 
 
 # Find where new shells open up & # of eigs increases
@@ -177,7 +175,7 @@ def perms_list(nnk):
   p_list += list(perms([a,b,-c]))
   p_list += list(perms([a,-b,c]))
   p_list += list(perms([-a,b,c]))
-  
+
   p_list = [ list(p) for p in p_list ]
   return p_list
 
@@ -202,7 +200,7 @@ def shell_nnk_list(shell):
   elif shell[0]==shell[1]==shell[2]>0:
     a = shell[0]
     return [(a,a,a),(a,a,-a),(a,-a,a),(-a,a,a), (-a,-a,-a),(-a,-a,a),(-a,a,-a),(a,-a,-a)]
-  
+
   # ab0
   elif 0==shell[2]<shell[0]<shell[1]:
     a = shell[0]; b = shell[1]
@@ -234,7 +232,7 @@ def shell_nnk_list(shell):
     auxshell2 = 1*auxshell1
     for i in range(len(auxshell1)):
         auxshell2[i] = [x*-1 for x in auxshell1[i]]
-    
+
     return auxshell1+auxshell2
 
   else:
@@ -327,7 +325,7 @@ def cpx2real(cpx_mat):
     [0, 1/sqrt(2), 0, 0, 0, 1/sqrt(2)]
   ])
   Ui = U.conj().T
-  
+
   # block size
   N = int(len(cpx_mat)/6)
 

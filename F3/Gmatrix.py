@@ -6,7 +6,7 @@ import F2_alt as F2
 from defns import y2, list_nnk, lm_idx, chop, full_matrix
 from numba import jit
 
-@jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%                                                                                                                       
+@jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%
 def npsqrt(x):
     return np.sqrt(x)
 
@@ -20,7 +20,7 @@ def mydot(x,y):
 
 def ktinvroot(e,L,nk):
     k = nk*2*math.pi/L
-    omk = npsqrt(1+k**2)       
+    omk = npsqrt(1+k**2)
     E2k = npsqrt(e**2 + 1 - 2*e*omk)
     return 1/npsqrt(32.*math.pi*omk*E2k )
 
@@ -44,10 +44,10 @@ def boost(nnp, nnk,e):
     gamma = sums.gam(e, sums.norm(nnk))
     omp = npsqrt(1+sums.norm(nnp)**2)
     omk = npsqrt(1+sums.norm(nnk)**2)
-    
+
     nnpparboost = np.multiply(nnppar, gamma) + np.multiply( np.multiply(nnk, gamma), (omp)/(e-omk ))
 
-    
+
     return nnpparboost + nnpperp
 
 
@@ -60,8 +60,8 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
     omp = npsqrt(1+p**2)
     omk = npsqrt(1+k**2)
     #ompk = np.sqrt(1+pk**2)
-    
-    bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2   
+
+    bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2
 
     # nnps and nnks are the full vectors p* and k*
     nnps = boost(np.multiply(nnp, 2*math.pi/L), np.multiply(nnk, 2*math.pi/L), e)
@@ -74,7 +74,7 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
     # TB: Choose spherical harmonic basis
     Ytype = 'r' # 'r' for real, 'c' for complex
     Ylmlm = 1
-    
+
     momfactor1 = 1
     momfactor2 = 1
     if(l1==2):
@@ -116,7 +116,7 @@ def Gmat(E,L):
           [l2,m2] = lm_idx(i2)
 
           Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
-      
+
       Gp.append(Gpk)
 
     Gfull.append(Gp)
@@ -140,7 +140,7 @@ def Gmat00(E,L):
   return chop(Gfull)
 
 
-# Just compute l'=l=2 portion                                                                                                                                                            
+# Just compute l'=l=2 portion
 def Gmat22(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
@@ -155,8 +155,7 @@ def Gmat22(E,L):
       Gpk = np.zeros((5,5))
       for i in range(5):
         for j in range(5):
-          mp = i-2
-          m = j-2
+          mp = i-2;  m = j-2
           Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m)
       Gp.append(Gpk)
     Gfull.append(Gp)
@@ -177,9 +176,9 @@ def Gmat22(E,L):
 #     Phi = np.arctan2(y,x)
 #     if(Phi<0):
 #         Phi = 2*math.pi+Phi
-    
+
 #     return  Phi, Theta
-    
+
 
 # Calculate G (this is really Gtilde = G/(2*omega))
 # def G(e, L, nnp, nnk,l1,m1,l2,m2):
@@ -190,7 +189,7 @@ def Gmat22(E,L):
 #     omp = np.sqrt(1+p**2)
 #     omk = np.sqrt(1+k**2)
 #     ompk = np.sqrt(1+pk**2)
-#     bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2    
+#     bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2
 #     # nnps and nnks are the full vectors p* and k*
 #     nnps = boost(np.multiply(nnp, 2*math.pi/L), np.multiply(nnk, 2*math.pi/L), e)
 #     nnks = boost(np.multiply(nnk, 2*math.pi/L), np.multiply(nnp, 2*math.pi/L), e)
@@ -210,14 +209,14 @@ def Gmat22(E,L):
 #         #momfactor2 = (ps)**l2/qks
 #         # shouldn't this be (ps/sqrt(qks))**l1 ? (fine if l2=2)
 
-#     Phik, Thetak = PhiTheta(nnks) 
+#     Phik, Thetak = PhiTheta(nnks)
 #     Phip, Thetap = PhiTheta(nnps)
-    
+
 #     Ylmlm =4*math.pi* sph_harm(m1,l1,Phik,Thetak) * np.conj(sph_harm(m2,l2,Phip,Thetap))
 
 # #    aux = (sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2).imag
 # #    print(aux)
-    
+
 #     return sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2
 
 def G00(e,L):
@@ -262,7 +261,7 @@ def G20m(e,L,m1):
     nklist = list_nnk(e,L)
     G_20 = np.zeros((len(nklist),len(nklist)))
     #G_20 = np.zeros((len(nklist),len(nklist)),dtype=complex)
-    
+
     i=0
     for nnp in nklist: # TB: I reversed nnp and nnk
         j=0
@@ -280,7 +279,7 @@ def G22m(e,L,m1,m2):
     nklist = list_nnk(e,L)
     G_22 = np.zeros((len(nklist),len(nklist)))
     #G_22 = np.zeros((len(nklist),len(nklist)),dtype=complex)
-    
+
     i=0
     for nnp in nklist: # TB: I reversed nnp and nnk
         j=0
@@ -320,23 +319,23 @@ def G22(e,L):
     G22_m2 = np.hstack((G22_m2, G22m(e,L,-2,1)))
     G22_m2 = np.hstack((G22_m2, G22m(e,L,-2,2)))
 
-    G22_m1 = G22m(e,L,-1,-2) 
+    G22_m1 = G22m(e,L,-1,-2)
     G22_m1 = np.hstack((G22_m1, G22m(e,L,-1,-1)))
     G22_m1 = np.hstack((G22_m1, G22m(e,L,-1,0)))
     G22_m1 = np.hstack((G22_m1, G22m(e,L,-1,1)))
     G22_m1 = np.hstack((G22_m1, G22m(e,L,-1,2)))
 
-    G22_0 = G22m(e,L,0,-2) 
+    G22_0 = G22m(e,L,0,-2)
     G22_0 = np.hstack((G22_0, G22m(e,L,0,-1)))
     G22_0 = np.hstack((G22_0, G22m(e,L,0,0)))
     G22_0 = np.hstack((G22_0, G22m(e,L,0,1)))
     G22_0 = np.hstack((G22_0, G22m(e,L,0,2)))
 
-    G22_p1 = G22m(e,L,1,-2) 
+    G22_p1 = G22m(e,L,1,-2)
     G22_p1 = np.hstack((G22_p1, G22m(e,L,1,-1)))
     G22_p1 = np.hstack((G22_p1, G22m(e,L,1,0)))
     G22_p1 = np.hstack((G22_p1, G22m(e,L,1,1)))
-    G22_p1 = np.hstack((G22_p1, G22m(e,L,1,2)))  
+    G22_p1 = np.hstack((G22_p1, G22m(e,L,1,2)))
 
     G22_p2 = G22m(e,L,2,-2)
     G22_p2 = np.hstack((G22_p2, G22m(e,L,2,-1)))
@@ -415,7 +414,7 @@ def Xi22(e,L):
     for i in range(5):
         for nnk in nklist:
             res.append(1./ktinvroot(e,L,sums.norm(nnk)))
-            
+
     return np.diag(res)
 
 
@@ -452,11 +451,11 @@ def detF2_dwave(e,L,a,a2):
 
     detres = np.linalg.det(matrix2)
     return detres
-    
+
 
 
 def frange(start, stop, step=1.0):
-    ''' "range()" like function which accept float type''' 
+    ''' "range()" like function which accept float type'''
     i = start
     while i < stop:
         yield i
@@ -464,12 +463,12 @@ def frange(start, stop, step=1.0):
 
 
 #import time
-        
+
 # L=5
 # a=0.1
 # for i in frange(3.0315,3.0321,0.0001):
-#     start = time.time()                                                                                                                                                  
+#     start = time.time()
 #     print('det F2 at E=',i,' is ' ,detF2(i,L,a))
 #     print('det F2 at E=',i,' is ' ,detF2_dwave(i,L,a,a))
-#     end = time.time()                                                                                                                                                                  
-#     print('time is:', end - start, ' s')                                                                                                                                               
+#     end = time.time()
+#     print('time is:', end - start, ' s')
