@@ -115,7 +115,7 @@ def Gmat(E,L):
         for i2 in range(6):
           [l2,m2] = lm_idx(i2)
 
-          Gpk[i1][i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
+          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
       
       Gp.append(Gpk)
 
@@ -135,12 +135,12 @@ def Gmat00(E,L):
     for k in range(N):
       nnk = list(nnk_list[k])
 
-      Gfull[p][k] = G(E,L,nnp,nnk,0,0,0,0)
+      Gfull[p,k] = G(E,L,nnp,nnk,0,0,0,0)
 
   return chop(Gfull)
 
 
-# Just compute l'=l=2 portion
+# Just compute l'=l=2 portion                                                                                                                                                            
 def Gmat22(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
@@ -153,10 +153,12 @@ def Gmat22(E,L):
       nnk = list(nnk_list[k])
 
       Gpk = np.zeros((5,5))
-      for mp in range(-2,3):
-        for m in range(-2,3):
-          Gpk[mp,m] = G(E,L,nnp,nnk,2,mp,2,m)
-      Gp.append(Gpk)        
+      for i in range(5):
+        for j in range(5):
+          mp = i-2
+          m = j-2
+          Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m)
+      Gp.append(Gpk)
     Gfull.append(Gp)
   return chop(np.block(Gfull))
 
