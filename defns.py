@@ -1,5 +1,4 @@
 import numpy as np
-#sqrt=np.sqrt;
 pi=np.pi; conj=np.conjugate; LA=np.linalg
 from itertools import permutations as perms
 
