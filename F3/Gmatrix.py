@@ -3,7 +3,7 @@ import math
 import numpy as np
 import sums_alt as sums
 import F2_alt as F2
-from defns import y2, list_nnk, lm_idx, chop, full_matrix
+from defns import y2,y2real, list_nnk, lm_idx, chop, full_matrix
 from numba import jit
 
 @jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%                                                                                                                       
@@ -80,11 +80,13 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
     if(l1==2):
         #momfactor1 = (ks)**l1/qps2
         momfactor1 = qps2**(-l1/2) # TB: ks**l1 included in my y2(nnks)
-        Ylmlm = y2(nnks,m1,Ytype)
+#        Ylmlm = y2(nnks,m1,Ytype)
+        Ylmlm = y2real(nnks,m1)
     if(l2==2):
         #momfactor2 = (ps)**l2/qks2
         momfactor2 = qks2**(-l2/2) # TB: ps**l2 included in my y2(nnps)
-        Ylmlm = Ylmlm * y2(nnps,m2,Ytype)
+#        Ylmlm = Ylmlm * y2(nnps,m2,Ytype)
+        Ylmlm = Ylmlm * y2real(nnps,m2)
 
     # out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2
     out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm # TB, no q

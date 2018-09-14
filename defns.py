@@ -303,7 +303,8 @@ def y2real(kvec,m): # y2 = sqrt(4pi) * |kvec|**2 * Y2
     print('Error: invalid m input in y2real')
 
 # Spherical harmonics w/ flag for real vs. complex (default)
-def y2(kvec,m,Ytype):
+@jit(nopython=True,fastmath=True,parallel=True)
+def y2(kvec,m):
   if Ytype=='real' or Ytype=='r':
     return y2real(kvec,m)
   else:

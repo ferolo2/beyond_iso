@@ -6,17 +6,27 @@ import math
 import numpy as np
 import time 
 from numba import jit,njit,prange,autojit
+from multiprocessing import Pool
 
-@autojit
+
 def detrange2(L,a,energies):
     res=[0.,0.,0.]
     lenergies= len(list(energies))
 
+    pool = Pool(processes=3)
+
+    
+    result = pool.map(H_mat.Hmat, energies, [L,L,L],[a,a,a],[0,0,0],[0,0,0],[0.25,0.25,0.25],[0.5,0.5,0.5])
+
+    
+    
     for i in prange(lenergies):        
 #       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
 #        res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,0.25,0.5))
-        res[i]= np.linalg.det(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))
+#        res[i]= np.linalg.det(H_mat.Hmat00(energies[i],L,a,0.,0.,1.0))
+        res[i] = result[i]
 
+        
 #       Hmat00(E,L,a0,r0,P0,alpha)
     return res
 
@@ -28,29 +38,25 @@ def myreal(arr):
     return out
 
 
-@autojit
+
+def H2(e,L,a):
+    return H_mat.Hmat(e,L,a,0.,0.,0.25,0.5)
+def H0(e,L,a):
+    return H_mat.Hmat00(e,L,a,0.,0.25,0.5)
+
+#@autojit
 def EWrange2(L,a,energies):
     res=[0.,0.,0.]
     lenergies= len(list(energies))
-
-
-#    aux= np.linalg.eig(H_mat.Hmat(energies[0],L,a,0.,0.,0.25,0.5))
-    
-#    print(sorted(aux[0]))
-#    print(aux[1])
-        
-#    exit()
+    pool = Pool(processes=3)
+    result = pool.starmap(H2, [(energies[0],L,a),(energies[1],L,a),(energies[2],L,a)])
+#    result = pool.starmap(H0, [(energies[0],L,a),(energies[1],L,a),(energies[2],L,a)])
     
     for i in prange(lenergies):        
-#       res[i]= np.linalg.det(H_mat.Hmat(energies[i],L,a,0.,0.,1.0,0.5))        
 #        res[i]= sorted(np.linalg.eig(H_mat.Hmat(energies[i],L,a,0.,0.,0.25,0.5))[0])[-1].real
-        res[i]= sorted(np.linalg.eig(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))[0])[-1].real
+#        res[i]= sorted(np.linalg.eig(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))[0])[-1].real
+       res[i] = sorted(np.linalg.eig(result[i])[0])[-1].real  
         
-#        print(res[i])
-        
-#        res[i]= np.linalg.det(H_mat.Hmat00(energies[i],L,a,0.,0.,0.5))
-
-#       Hmat00(E,L,a0,r0,P0,alpha)
     return res
 
 
@@ -58,14 +64,17 @@ def EWrange2(L,a,energies):
 
 
 
-L=25
+L=27
 a=0.1
+Etest = 3.0003
 start = time.time()
 
-energies= [3.0002440383032125, 3.0002440383734075, 3.0002440384436024] # [3.000204029622465, 3.0002352028624968, 3.000263761025286]# [3.0003351812227046, 3.0003351812227095, 3.0003351812227144] 
+#energies= [3.000193448341778, 3.000193562184019, 3.0001935760262595]  # [3.000213837, 3.000216951408889, 3.000220065817778]
+energies= [Etest-0.00001, Etest, Etest+0.00001] # [3.000213837, 3.000216951408889, 3.000220065817778]
+energies = [3.0001935599880523, 3.0001935621675373, 3.0001935643470223]
+#energies = [3.000216852878521, 3.0002168542293832, 3.0002168555802453]
 
-
-for i in range(4):
+for i in range(3):
     print(energies)
     res = EWrange2(L,a,energies)
     print(res)
