@@ -10,7 +10,7 @@ from numpy.lib.scimath import sqrt
 from numba import jit,autojit,njit
 from scipy.special import sph_harm
 from scipy.special import erfi
-from scipy.special import erfc 
+from scipy.special import erfc
 from scipy.optimize import fsolve
 
 global alpH, aux1, aux2
@@ -92,39 +92,6 @@ def xx2(e, L, k):
     return ( E2a2(e, k) - 1)*L*L/(2*math.pi)**2;
 
 
-# def xx2_TB(E,L,k):
-#   return ( defns.qst(E,k)*L/(2*pi) )**2
-
-# def rr2_TB():
-
-
-# def summand(e, L, nna, nnk, gamma, x2,l1,m1,l2,m2,alpha):
-
-#     nk = norm(nnk);
-
-#     nnA = np.array(nna)
-#     nnK = np.array(nnk)
-#     nnb = -1*nnA -1*nnK
-    
-#     if(nk==0):
-#         rr=nnA
-#     else:
-#         rr = nnA + nnK/(2*gamma) + nnK*(1/gamma -1)*np.dot(nnA,nnK)/nk**2       
-
-#     rr2 = np.dot(rr, rr)
-#     twopibyL = 2*math.pi/L
-#     a = norm(nnA)*twopibyL
-#     b = norm(nnb)*twopibyL
-
-#     Theta = np.arctan2(np.sqrt(rr[1]**2+rr[0]**2),rr[2])
-#     Phi = np.arctan2(rr[1],rr[0])
-    
-#     Ylmlm =4*math.pi* sph_harm(m1,l1,Phi,Theta) * np.conj(sph_harm(m2,l2,Phi,Theta))*(np.sqrt(rr2))**(l1 + l2)
-    
-#     exponential = np.exp(alpha*(x2-rr2))
-    
-#     return Ylmlm*exponential/(x2 - rr2)
-
 # TB: choose basis inside
 @jit(nopython=True,fastmath=True,cache=True)
 def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
@@ -132,7 +99,7 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
     nnA = nna
     nnK = nnk
     nnb = -1*(np.add(nnA,nnK))
-    
+
     if(nk==0):
         rr=nnA
     else:
@@ -149,7 +116,7 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
       Ylmlm = Ylmlm * defns.y2real(rr,m2)
     
     exponential = exp(alpha*(x2-rr2))
-    
+
     out = Ylmlm*exponential/(x2 - rr2)
     return out
 
@@ -174,10 +141,9 @@ def getnmax2(cutoff,alpha,x2,gamma):
 def getnmax(cutoff,alpha,x2,gamma):
     eqn = lambda l : -cutoff + 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*erfc(npsqrt(alpha)*l)
 
-    
     n0=1
     solution=fsolve(eqn, n0)
-        
+
     return int(np.round(max(solution*gamma,1)+3))
 
 @njit(fastmath=True,cache=True)
@@ -315,20 +281,20 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
         for n1 in range(-nmax,nmax+1):
             for n2 in range(-nmax,nmax+1):
                 for n3 in range(0,nmax+1):
-                    if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube. 
+                    if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube.
                         factor=0
                         if(n3>0):
                             factor+=1            
                         ressum += 2**factor*summand(e, L, 1.0*np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
-            
+
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL
         #return x2**(-(l1+l2)/2)*ressum # TB
         return (2*pi/L)**(l1+l2) * ressum # TB, no q
 
 
 
-    
+
 
 
 
@@ -362,24 +328,24 @@ def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
         #out = x_term*4*math.pi*gamma*(factor1 + factor2) #TB
        # print((2*pi/L)**4,gamma*(factor1 + factor2))
         out = (2*pi/L)**4 * 4*math.pi*gamma*(factor1 + factor2) #TB, no q
-       
+
     else:
       return 0.
-    
+
     if abs(out.imag)>1e-15:
         print('Error in int_nnk: imaginary part in output')
     else:
       out = out.real
     return out
-    
-       
+
+
 # Calculate F (this is really Ftilde=F/(2*omega))
 def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
     nk = norm(nnk)
     k = nk*2*math.pi/L
     omk = npsqrt(1. + k**2)
     hhk = hh(e, k)
-    
+
     if hhk==0:
         return 0
     else:
@@ -399,7 +365,7 @@ def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
 
 
 #########################################################
-# TB: Never touched/used this 
+# TB: Never touched/used this
 def sum_nnk_test(e, L, nnk,l1,m1,l2,m2,alpha,nmax2):
     nk = norm(nnk)
     if(E2a2(e, nk*2*math.pi/L)<=aux1):
@@ -414,7 +380,7 @@ def sum_nnk_test(e, L, nnk,l1,m1,l2,m2,alpha,nmax2):
 #        nmax = math.floor(nn0);
         hhk = hh(e, k)
         #cutoff=1e-9
-        
+
         nmax=nmax2
 #        nmax = getnmax(cutoff,alpha,x2,gamma)
 
@@ -425,7 +391,5 @@ def sum_nnk_test(e, L, nnk,l1,m1,l2,m2,alpha,nmax2):
                     ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
 
 
-                    
+
         return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum
-
-
