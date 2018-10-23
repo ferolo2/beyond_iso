@@ -53,7 +53,7 @@ def boost(nnp, nnk,e):
 
 # Calculate Gtilde = G/(2*omega)
 # TB: Choose basis inside
-def G(e, L, nnp, nnk,l1,m1,l2,m2):
+def G(e, L, nnp, nnk,l1,m1,l2,m2,qfactor=False):
     p = sums.norm(nnp) * 2. *math.pi/L
     k = sums.norm(nnk) * 2. *math.pi/L
     pk = sums.norm(np.add(nnk,nnp)) * 2. *math.pi/L
@@ -86,8 +86,11 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
         momfactor2 = qks2**(-l2/2) # TB: ps**l2 included in my y2(nnps)
         Ylmlm = Ylmlm * y2(nnps,m2,Ytype)
 
-    # out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2
+    #out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2
+
     out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm # TB, no q
+    if qfactor==True:   # put in q factor (if desired)
+      out *= momfactor1 * momfactor2
 
     if (Ytype=='r' or Ytype=='real') and abs(out.imag)>1e-15:
         print('Error in G: imaginary part in real basis output')
@@ -97,7 +100,7 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
 
 
 # Full Gtilde matrix (new structure)
-def Gmat(E,L):
+def Gmat(E,L,qfactor=False):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
   #print(nnk_list)
@@ -115,7 +118,7 @@ def Gmat(E,L):
         for i2 in range(6):
           [l2,m2] = lm_idx(i2)
 
-          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
+          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2,qfactor)
 
       Gp.append(Gpk)
 
@@ -125,7 +128,7 @@ def Gmat(E,L):
 
 
 # Just compute l'=l=0 portion
-def Gmat00(E,L):
+def Gmat00(E,L,qfactor=False):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
 
@@ -141,7 +144,7 @@ def Gmat00(E,L):
 
 
 # Just compute l'=l=2 portion
-def Gmat22(E,L):
+def Gmat22(E,L,qfactor=False):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
 
@@ -156,7 +159,7 @@ def Gmat22(E,L):
       for i in range(5):
         for j in range(5):
           mp = i-2;  m = j-2
-          Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m)
+          Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m,qfactor)
       Gp.append(Gpk)
     Gfull.append(Gp)
   return chop(np.block(Gfull))

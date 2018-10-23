@@ -88,28 +88,30 @@ L_list = [5.0]
 
 ####################################################################################
 # Eigenvalue analysis
-#E=4.21193818; 
-E=4.2; L=5.0
-shell = [0,0,1]; l=0
-I = 'T2-'
-# print(defns.shell_list(E,L))
-
-# P = proj.P_irrep_full(E,L,I)
-# Psub = proj.P_irrep_subspace(E,L,I)
-# M = Gmatrix.Gmat(E,L)
-
-# eigs = sorted(defns.chop(LA.eigvals(M)))
-# eigs1 = sorted(defns.chop(LA.eigvals(defns.chop(P@M@P))))
-# eigs2 = sorted(LA.eigvals(defns.chop(Psub.T@M@Psub)))
-
-# Q = defns.chop(LA.qr(Psub.real)[0])
-# #print(Q)
-# #print(np.dot(Q[:,0],Q[:,1]))
-# eigs3 = sorted(LA.eigvals(defns.chop(Q.T@M@Q)))
-
-# print([e for e in eigs1 if abs(e)>0],'\n')
-# print(eigs3,'\n')
-# print(eigs)
+#E=3.1; L=5.0
+#a0=0.1; r0=0; P0=0; a2=1
+#I = 'T2-'
+## print(defns.shell_list(E,L))
+#
+#P = proj.P_irrep_full(E,L,I)
+#Psub = proj.P_irrep_subspace(E,L,I)
+#M = F3_mat.F3mat(E,L,a0,r0,P0,a2,alpha)
+#Mi = defns.chop(LA.inv(M))
+##M = Gmatrix.Gmat(E,L)
+#
+#eigs = sorted(defns.chop(LA.eigvals(Mi)))
+#eigs1 = sorted(defns.chop(LA.eigvals(defns.chop(P@Mi@P)).real))
+#eigs2 = sorted(LA.eigvals(defns.chop(Psub.T@Mi@Psub)).real)
+#
+##eigs3 = sorted(defns.chop(LA.eigvals(defns.chop(LA.inv(P@M@P)))))
+#eigs4 = sorted(LA.eigvals(defns.chop(LA.inv(Psub.T@M@Psub))).real)
+#
+#print([e for e in eigs1 if abs(e)>1e-10],'\n')
+#print(eigs2,'\n')
+##print([e for e in eigs3 if abs(e)>0],'\n')
+#print(eigs4,'\n')
+#
+#print([e for e in eigs if round(e,4) in [round(i,4) for i in eigs2]])
 
 ###########################
 # Check projection matrix diagonalization
@@ -168,29 +170,10 @@ I = 'T2-'
 
 
 
-# def xx2_TB(E,L,nnk):
-#   k = LA.norm(nnk)*2*pi/L
-#   return ( defns.qst(E,k)*L/(2*pi) )**2
-
-# def rr2_TB(E,L,nnk,nna):
-#   nk = LA.norm(nnk)
-#   gam_k = defns.gamma(E,nk*2*pi/L)
-#   if nnk==0:
-#     nnk_hat = nnk
-#   else:
-#     nnk_hat = [x/nk for x in nnk]
-#   na_par = np.dot(nna,nnk)/nk
-#   nna_perp = [nna[i] - na_par*nnk_hat[i] for i in range(3)]
-
-#   rvec = [(na_par+nk/2)/gam_k * nnk_hat[i] + nna_perp[i] for i in range(3)]
-
-#   return LA.norm(rvec)**2
-
 # E=3.96
 # print(xx2_TB(E,5,[0,0,1]))
 # print(rr2_TB(E,5,[0,0,1],[0,0,0]))
 
-print(proj.P_irrep_subspace_22(3.1,5,'E+').shape)
 
 import roots_master
 #roots_master.main()

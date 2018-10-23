@@ -3,6 +3,7 @@ sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg
 
 from scipy.interpolate import interp1d, UnivariateSpline
 from scipy.optimize import bisect, newton
+import sys
 
 import defns, projections as proj
 
@@ -36,13 +37,18 @@ def F3i_I_eigs_list( E_list, L, F3_list, I, flip=False ):
         F3i_I = 1/F3_I
         F3i_I_eigs = F3i_I
       else:
-        F3i_I = defns.chop(LA.inv(F3_I))
+        F3_I_eigs = defns.chop(np.array(sorted(LA.eigvals(F3_I),key=abs,reverse=True)).real)
+        #F3i_I = defns.chop(LA.inv(F3_I))
+        if F3_I_eigs[-1]==0:
+          print(E,F3_I_eigs)
+          sys.exit()
+        else:
+          F3i_I_eigs = np.array([1/x for x in F3_I_eigs])
 
     elif flip==True: # invert F3 before projecting
       F3i = defns.chop(LA.inv(F3))
       F3i_I = proj.irrep_proj(F3i,E,L,I)
-
-    F3i_I_eigs = defns.chop(np.array(sorted(LA.eigvals(F3i_I))).real)
+      F3i_I_eigs = defns.chop(np.array(sorted(LA.eigvals(F3i_I))).real)
       
     out.append( F3i_I_eigs )
   return out

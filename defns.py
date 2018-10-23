@@ -71,13 +71,25 @@ def E_free_list(L,count,*args):
   return out
 
 
-# List first n 2-pt. free energies for given L
-def E_2pt_free_list(L,count,*args):
-  if len(args)==0:
-    nmax = 5
+# List first n energies where q*=0 for given L (these give "false poles" unless the explicit q* factors in F3 are removed)
+def false_poles(L,n2max):
+  out = []
+  if n2max<=6:
+    for n2 in range(n2max+1):
+      out.append(sqrt((2*pi/L)**2*n2 + 1) + sqrt((2*pi/L)**2*n2 + 4))
   else:
-    nmax = args[0]
+    nmax = floor(sqrt(n2max))
+    for a in range(nmax+1):
+      for b in range(a,nmax+1):
+        for c in range(b,nmax+1):
+          n2 = a**2+b**2+c**2
+          if n2<=n2max:
+            out.append(sqrt((2*pi/L)**2*n2 + 1) + sqrt((2*pi/L)**2*n2 + 4))
+  return out
 
+
+# List first n 2-pt. free energies for given L (not sure these are relevant)
+def E_2pt_free_list(L,count,nmax=5):
   nvec_list = []
   for n1 in range(-nmax,nmax+1):
     for n2 in range(-nmax,nmax+1):
@@ -300,12 +312,21 @@ def y2real(kvec,m): # y2 = sqrt(4pi) * |kvec|**2 * Y2
   else:
     print('Error: invalid m input in y2real')
 
-# Spherical harmonics w/ flag for real vs. complex (default)
-def y2(kvec,m,Ytype):
+# Spherical harmonics w/ flag for real (default) vs. complex
+def y2(kvec,m,Ytype='r'):
   if Ytype=='real' or Ytype=='r':
     return y2real(kvec,m)
   else:
     return y2complex(kvec,m)
+
+# Generalize to include l=0 case
+def ylm(kvec,l,m,Ytype='r'):
+  if l==m==0:
+    return 1
+  elif l==2:
+    return y2(kvec,m,Ytype)
+  else:
+    print('Error: ylm can only take l=0 or l=2')
 
 
 

@@ -111,7 +111,7 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
     return out
 
 
-# May edit to try improving run-time at shell thresholds
+# Find maximum n needed in sum_nnk
 def getnmax(cutoff,alpha,x2,gamma):
     eqn = lambda l : -cutoff + 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*erfc(npsqrt(alpha)*l)
 
@@ -120,7 +120,9 @@ def getnmax(cutoff,alpha,x2,gamma):
 
     return int(np.round(max(solution*gamma,1)+3))
 
-def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha):
+
+# Compute sum needed for Ftilde
+def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha, smart_cutoff=0):
     nk = norm(nnk)
     if(E2a2(e, nk*2*math.pi/L)<=aux1):
         return 0.
@@ -134,7 +136,11 @@ def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha):
         #hhk = hh(e, k)  # TB: put hhk in C
 
         cutoff=1e-9
-
+        hhk = hh(e,k)
+        if hhk==0:
+          return 0
+        if smart_cutoff==1:
+          cutoff = cutoff/hhk  # TB: This should fix the run-time issue at shell thresholds (large gamma, but tiny hhk)
 
         nmax = getnmax(cutoff,alpha,x2,gamma)
 
@@ -220,7 +226,7 @@ def sum_00a(e, L,nnk,l1,m1,l2,m2,alpha):
                             factor+=1
                         ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
-            
+
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL
         #return x2**(-(l1+l2)/2)*ressum # TB
         return (2*pi/L)**(l1+l2) * ressum # TB, no q
@@ -243,7 +249,6 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
         #hhk = hh(e, k)  # TB: put hhk in C
 
         cutoff=1e-9
-
 
         nmax = getnmax(cutoff,alpha,x2,gamma)
 
@@ -287,7 +292,7 @@ def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
         factor2 = 0.5*math.pi*sqrt(x2)*erfi(sqrt(alpha*x2))
 
         #out = q2s*hhk*4*math.pi*gamma*(factor1 + factor2) # FRL
-        # out = x_term*4*math.pi*gamma*(factor1 + factor2) #TB
+        #out = x_term*4*math.pi*gamma*(factor1 + factor2) #TB
         out = 4*math.pi*gamma*(factor1 + factor2) #TB, no q
 
     elif(l1==l2==2):
@@ -296,7 +301,7 @@ def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
 
         #out = q2s*hhk*4*math.pi*gamma*(factor1 + factor2) # FRL
         #out = x_term*4*math.pi*gamma*(factor1 + factor2) #TB
-       # print((2*pi/L)**4,gamma*(factor1 + factor2))
+        # print((2*pi/L)**4,gamma*(factor1 + factor2))
         out = (2*pi/L)**4 * 4*math.pi*gamma*(factor1 + factor2) #TB, no q
 
     else:
@@ -310,7 +315,7 @@ def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
 
 
 # Calculate F (this is really Ftilde=F/(2*omega))
-def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
+def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha,qfactor=False):
     nk = norm(nnk)
     k = nk*2*math.pi/L
     omk = npsqrt(1. + k**2)
@@ -320,17 +325,21 @@ def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
         return 0
     else:
         if(nk==0):
-            SUM = sum_000(e, L, l1,m1,l2,m2,alpha)
+           SUM = sum_000(e, L, l1,m1,l2,m2,alpha)
         elif(nnk[0]==0 and nnk[1]==0):
-            SUM = sum_00a(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
+           SUM = sum_00a(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
         elif nnk[0]==nnk[1]>0==nnk[2]:
-            SUM = sum_aa0(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
+           SUM = sum_aa0(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
         else:
             SUM = sum_nnk(e, L, np.array(nnk),l1,m1,l2,m2,alpha)
         INT = int_nnk(e,L,nnk,l1,m1,l2,m2,alpha)
-        C = hhk/(32*omk*math.pi**2*L*(e - omk)) #TB
         #C = 1/(32*omk*math.pi**2*L*(e - omk))
-        return (SUM-INT)*C
+        C = hhk/(32*omk*math.pi**2*L*(e - omk)) #TB
+
+        out = (SUM-INT)*C
+        if qfactor==True:   # put in explicit qk* factor (if desired)
+          out *= defns.qst(e,k)**(-l1-l2)
+        return out
 
 
 

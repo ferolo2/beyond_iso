@@ -1,4 +1,3 @@
-
 import numpy as np
 sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg
 from scipy.linalg import block_diag
@@ -49,7 +48,7 @@ def p_iso00(E,L):
   # for i_shell in range(len(shells)):
   #   N = len(defns.shell_nnk_list(shells[i_shell]))
   #   p_iso[i_k:i_k+N,i_shell] = 1/sqrt(N)
-  #   i_k += N  
+  #   i_k += N
   return p_iso
 
 # Project l'=l=0 matrix into isotropic approx (A1 irrep & l=0)
@@ -86,9 +85,9 @@ def P_irrep_o_l(shell,l,I,lblock=False):
           P_block[1:,1:] += GT.chi(RRR,I) * GT.Dmat(RRR)[1:,1:]
           P_block = defns.chop(P_block)
 
-      P_k2.append(P_block) 
+      P_k2.append(P_block)
     P_shell.append(P_k2)
-  
+
   out = d_I/48 * np.block(P_shell)
   if lblock==True:
     if l==0:
@@ -191,7 +190,7 @@ def P_irrep_subspace_00(E,L,I):
     Psub = np.column_stack((Psub,P_irrep_subspace_o_l(E,L,I,shell,0,lblock=True)))
   return Psub
 
-# l'=l=2 irrep subspace projection matrix (acts on F3_00) 
+# l'=l=2 irrep subspace projection matrix (acts on F3_00)
 def P_irrep_subspace_22(E,L,I):
   N = len(defns.list_nnk(E,L))
   Psub = np.zeros((5*N,0))
@@ -220,13 +219,13 @@ def evec_decomp(v,E,L,I):
   for shell in shells:
     P0 = P_irrep_subspace_o_l(E,L,I,shell,0)
     P2 = P_irrep_subspace_o_l(E,L,I,shell,2)
-    
+
     c0 = sum([np.dot(v,P0[:,i])**2 for i in range(P0.shape[1])])/LA.norm(v)**2
     c2 = sum([np.dot(v,P2[:,i])**2 for i in range(P2.shape[1])])/LA.norm(v)**2
-    
+
     c0_list.append(c0)
     c2_list.append(c2)
-    
+
   s = sum(c0_list)+sum(c2_list)
   print('Eigenvector decomposition for '+str(I)+' (total fraction: '+str(round(s,6))+')')
   for i in range(len(shells)):
@@ -239,6 +238,21 @@ def evec_decomp(v,E,L,I):
   print()
 
   return s
+
+
+# Irrep decomposition of large or small eigenvalues (e.g., poles of F3)
+def pole_decomp(M,E,L,size='large',thresh=100):
+  out = {}
+  for I in GT.irrep_list():
+    eigs_I = LA.eigvals(irrep_proj(M,E,L,I)).real
+    if size=='large':
+      eigs_I = [e for e in eigs_I if abs(e)>=thresh]
+    else:
+      eigs_I = [e for e in eigs_I if abs(e)<=thresh]
+    out[I] = len(eigs_I)
+    print(I+':\t' + str(len(eigs_I)) + '\t' + str(eigs_I)) # comment out if desired
+  print()                                                  # comment out if desired
+  return out
 
 
 ####################################################################################
@@ -292,7 +306,7 @@ def P_A1_o(shell):
 
   one_mat = np.ones((No,No))/No
   Pk = A1_little_group_sum(shell)
-  
+
   U_block_list = []
   for p in defns.shell_nnk_list(shell):
     p = list(p)
