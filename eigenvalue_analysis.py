@@ -17,10 +17,11 @@ import defns, projections as proj, analysis_defns as AD, group_theory_defns as G
 
 alpha = 0.5
 a0 = 0.1; r0=0; P0=0; a2=0.3
-K0=0; K1=0; K2=0; A=0; B=1e2
+K0=40; K1=0; K2=0; A=70; B=1e2
 L = 6
 #E = 3.89594387 # E1=3.8959438608040386  
-E = 4.57393085 # E2=4.573930845701579
+#E = 4.57393085 # E2=4.573930845701579
+E = 4.68290928  # E3=4.682909283654828
 I = 'A1+'
 
 float_formatter = lambda x: "%.2f" % x
@@ -56,6 +57,14 @@ T1 = np.identity(len(F)) - 3*F @ Hi
 T2 = np.identity(len(F)) - 3*Hi @ F
 F3 = T1 @ F / (3*L**3); F3i = defns.chop(LA.inv(F3))
 #F3 = (F/3 - F@Hi@F) / L**3; F3i = defns.chop(LA.inv(F3))
+
+
+proj.pole_decomp(F3,E,L)
+#proj.pole_decomp(K3,E,L,thresh=0.01)
+#proj.pole_decomp(F3i+K3,E,L,size='small',thresh=1e-3)
+#proj.pole_decomp(np.identity(len(F3))+F3@K3,E,L,size='small',thresh=1e-3)
+proj.pole_decomp(F3@LA.inv(np.identity(len(F3))+F3@K3),E,L)
+
 
 F_I = P.T@F@P
 G_I = P.T@G@P
@@ -95,18 +104,18 @@ K3_I = P.T@K3@P
 
 
 
-print(sorted(LA.eigvals(F_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(G_I).real,key=abs,reverse=True))
+#print(sorted(LA.eigvals(F_I).real,key=abs,reverse=True))
+#print(sorted(LA.eigvals(G_I).real,key=abs,reverse=True))
 #print(sorted(LA.eigvals(K2i_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(S_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(H_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(Hi_I).real,key=abs))
+#print(sorted(LA.eigvals(S_I).real,key=abs,reverse=True))
+#print(sorted(LA.eigvals(H_I).real,key=abs,reverse=True))
+#print(sorted(LA.eigvals(Hi_I).real,key=abs))
 #print(sorted(LA.eigvals(FHi_I).real,key=abs,reverse=True))
 #print(sorted(LA.eigvals(FHiF_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(F3_I).real,key=abs,reverse=True))
+#print(sorted(LA.eigvals(F3_I).real,key=abs,reverse=True))
 #print(sorted(LA.eigvals(F3i_I).real,key=abs))
 #print(sorted(LA.eigvals(K3_I).real,key=abs,reverse=True))
-print(sorted(LA.eigvals(F3i_I+K3_I).real,key=abs))
+#print(sorted(LA.eigvals(F3i_I+K3_I).real,key=abs))
 #print(sorted(LA.eigvals(np.identity(len(F3_I))+F3_I@K3_I).real,key=abs))
 
 #print(sorted(LA.eigvals(F).real,key=abs,reverse=True))

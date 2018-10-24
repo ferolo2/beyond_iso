@@ -7,7 +7,7 @@ from numpy.lib.scimath import sqrt
 
 
 #from pathlib import Path
-from numba import jit,autojit
+from numba import jit,autojit,njit
 from scipy.special import sph_harm
 from scipy.special import erfi
 from scipy.special import erfc
@@ -21,6 +21,10 @@ xmax = 0.97
 xmin = 0.01
 
 
+#This is an asymptotic expansion of erfc function. Numba doesn't accept scipy.especial.erfc
+@njit(fastmath=True)
+def myerfc(x):
+    return exp(-x**2)/npsqrt(math.pi)/x*(1.- 1./2/x**2 + 3./(2*x**2)**2)
 
 
 @jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%
@@ -43,7 +47,8 @@ def mydot(x,y):
         res+=x[i]*y[i]
     return res
 
-
+##temporal
+@jit(nopython=True,fastmath=True)
 def jj( x):
     xmin = 0.01
     xmax = 0.97
@@ -55,6 +60,8 @@ def jj( x):
         return 0.
 
 # E2k**2 / 4
+##temporal
+@jit(nopython=True,fastmath=True)
 def E2a2(e, a):
     return (1.+e**2)/4. - e*npsqrt(1.+(a**2))/2
 
@@ -64,20 +71,27 @@ def norm(nnk):
     for i in nnk:
         nk += i**2
     return npsqrt(nk)
+
 def hh(e, k):
     alpH = -1.
     aux1 = (1. + alpH)/4.
     aux2 = (3. - alpH)/4.
     return jj( (E2a2(e,k) - aux1)/aux2  )
 
+##temporal
+@jit(nopython=True,fastmath=True)
 def gam(e, k):
     return (e - npsqrt(1. + k**2))/(2*npsqrt(E2a2(e, k)))
+
+##temporal
+@jit(nopython=True,fastmath=True)
 def xx2(e, L, k):
     return ( E2a2(e, k) - 1)*L*L/(2*math.pi)**2;
 
 
-# TB: choose basis inside
-def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
+# TB: choose basis in input (default=real)
+@jit(nopython=True,fastmath=True,cache=True)
+def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha,Ytype='r'):
 
     nnA = nna
     nnK = nnk
@@ -86,15 +100,14 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
     if(nk==0):
         rr=nnA
     else:
-        rr = nnA+nnK*(1/(2*gamma)+(1/gamma -1)*mydot(nnA,nnK)/square(nk))
+        factor=(1/(2*gamma)+(1/gamma -1)*mydot(nnA,nnK)/square(nk))
+        rr = np.add(nnA,factor*nnK)
 
     rr2 = mydot(rr, rr)
     twopibyL = 2*math.pi/L
     a = norm(nnA)*twopibyL
     b = norm(nnb)*twopibyL
 
-    # TB: Choose spherical harmonic basis
-    Ytype = 'r'  # 'r' for real, 'c' for complex
     Ylmlm=1
     if l1==2:
       Ylmlm = defns.y2(rr,m1,Ytype)
@@ -112,16 +125,28 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha):
 
 
 # Find maximum n needed in sum_nnk
-def getnmax(cutoff,alpha,x2,gamma):
-    eqn = lambda l : -cutoff + 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*erfc(npsqrt(alpha)*l)
+@njit(fastmath=True) #This is compatible with numba
+def getnmax2(cutoff,alpha,x2,gamma):
+     n0=1
+    res = 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*myerfc(npsqrt(alpha)*n0)
+    while(res>cutoff):
+        n0+=1
+        res = 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*myerfc(npsqrt(alpha)*n0)
 
-    n0=1
-    solution=fsolve(eqn, n0)
+    return int(n0*gamma+3)
 
-    return int(np.round(max(solution*gamma,1)+3))
+# Old version (slower)
+# def getnmax(cutoff,alpha,x2,gamma):
+#     eqn = lambda l : -cutoff + 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*erfc(npsqrt(alpha)*l)
+#
+#     n0=1
+#     solution=fsolve(eqn, n0)
+#
+#     return int(np.round(max(solution*gamma,1)+3))
 
 
 # Compute sum needed for Ftilde
+@njit(fastmath=True,cache=True)
 def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha, smart_cutoff=0):
     nk = norm(nnk)
     if(E2a2(e, nk*2*math.pi/L)<=aux1):
@@ -142,14 +167,14 @@ def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha, smart_cutoff=0):
         if smart_cutoff==1:
           cutoff = cutoff/hhk  # TB: This should fix the run-time issue at shell thresholds (large gamma, but tiny hhk)
 
-        nmax = getnmax(cutoff,alpha,x2,gamma)
+        nmax = getnmax2(cutoff,alpha,x2,gamma)
 
         ressum=0.
         for n1 in range(-nmax,nmax+1):
             for n2 in range(-nmax,nmax+1):
                 for n3 in range(-nmax,nmax+1):
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube.
-                        ressum += summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
+                        ressum += summand(e, L, 1.0*np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
 
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL
@@ -158,7 +183,7 @@ def sum_nnk(e, L, nnk,l1,m1,l2,m2,alpha, smart_cutoff=0):
 
 
 
-
+@njit(fastmath=True,cache=True)
 def sum_000(e, L,l1,m1,l2,m2,alpha):
     nnk = np.array([0.,0.,0.])
     nk = norm(nnk)
@@ -183,18 +208,18 @@ def sum_000(e, L,l1,m1,l2,m2,alpha):
             for n2 in range(0,nmax+1):
                 for n3 in range(0,nmax+1):
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube.
-                        factor=0
+                        factor=0.
                         if(n1>0):
                             factor+=1
                         if(n2>0):
                             factor+=1
                         if(n3>0):
                             factor+=1
-                        ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
+                        ressum += 2**factor*summand(e, L, 1.0*np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
         return (2*pi/L)**(l1+l2) * ressum # TB, no q
 
 
-
+@njit(fastmath=True,cache=True)
 def sum_00a(e, L,nnk,l1,m1,l2,m2,alpha):
 
     nk=norm(nnk)
@@ -212,19 +237,19 @@ def sum_00a(e, L,nnk,l1,m1,l2,m2,alpha):
         cutoff=1e-9
 
 
-        nmax = getnmax(cutoff,alpha,x2,gamma)
+        nmax = getnmax2(cutoff,alpha,x2,gamma)
 
         ressum=0.
         for n1 in range(0,nmax+1):
             for n2 in range(0,nmax+1):
                 for n3 in range(-nmax,nmax+1):
                     if(norm([n1,n2,n3])<nmax): #FRL Sphere instead of cube.
-                        factor=0
+                        factor=0.
                         if(n1>0):
                             factor+=1
                         if(n2>0):
                             factor+=1
-                        ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
+                        ressum += 2**factor*summand(e, L, 1.0*np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
 
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL
@@ -233,7 +258,7 @@ def sum_00a(e, L,nnk,l1,m1,l2,m2,alpha):
 
 
 
-
+@njit(fastmath=True,cache=True)
 def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
 
     nk=norm(nnk)
@@ -250,7 +275,7 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
 
         cutoff=1e-9
 
-        nmax = getnmax(cutoff,alpha,x2,gamma)
+        nmax = getnmax2(cutoff,alpha,x2,gamma)
 
         ressum=0.
         for n1 in range(-nmax,nmax+1):
@@ -260,7 +285,7 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
                         factor=0
                         if(n3>0):
                             factor+=1
-                        ressum += 2**factor*summand(e, L, np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
+                        ressum += 2**factor*summand(e, L, 1.0*np.array([n1, n2, n3]), nnk, nk, gamma, x2,l1,m1,l2,m2,alpha) #TB
                     #ressum += hhk*summand(e, L, [n1, n2, n3], nnk, gamma, x2,l1,m1,l2,m2,alpha)
 
         # return (x2*twopibyL**2)**(-(l1+l2)/2)*ressum # FRL
