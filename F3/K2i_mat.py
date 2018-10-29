@@ -8,7 +8,7 @@ import defns
 
 
 # Calculate K2inverse (really K2inverse/(2*omega))
-def K2inv(E,kvec,l,m,a0,r0,P0,a2,qfactor=False):
+def K2inv(E,kvec,l,m,a0,r0,P0,a2):
   k = LA.norm(kvec)
   omk = defns.omega(k)
   E2star = defns.E2k(E,k)
@@ -24,8 +24,6 @@ def K2inv(E,kvec,l,m,a0,r0,P0,a2,qfactor=False):
   elif l==2 and -2<=m<=2:
     #out = 1/(32*pi*omk*E2star*qk**4) * ( -1/a2**5 + abs(qk)**5*(1-h) )
     out = 1/(32*pi*omk*E2star) * ( -1/a2**5 + abs(qk)**5*(1-h) ) # TB, no q
-    if qfactor==True:   # include q factor (if desired)
-      out = out/qk**4
 
   else:
     return 0
@@ -38,7 +36,7 @@ def K2inv(E,kvec,l,m,a0,r0,P0,a2,qfactor=False):
 
 
 # Make full K2inv matrix (new structure)
-def K2inv_mat(E,L,a0,r0,P0,a2,qfactor=False):
+def K2inv_mat(E,L,a0,r0,P0,a2):
   nnk_list = defns.list_nnk(E,L)
   N = len(nnk_list)
 
@@ -49,7 +47,7 @@ def K2inv_mat(E,L,a0,r0,P0,a2,qfactor=False):
     K2i_k_diag = []
     for i in range(6):
       [l,m] = defns.lm_idx(i)
-      K2i_k_diag.append(K2inv(E,kvec,l,m,a0,r0,P0,a2,qfactor))
+      K2i_k_diag.append(K2inv(E,kvec,l,m,a0,r0,P0,a2))
 
     K2i_k = np.diag(K2i_k_diag)
     K2i_full.append(K2i_k)
@@ -58,7 +56,7 @@ def K2inv_mat(E,L,a0,r0,P0,a2,qfactor=False):
 
 
 # Just compute l'=l=0 portion of K2inv
-def K2inv_mat00(E,L,a0,r0,P0,qfactor=False):
+def K2inv_mat00(E,L,a0,r0,P0):
   nklist = defns.list_nnk(E,L)
   K2inv00 = []
   for nkvec in nklist:
@@ -68,12 +66,12 @@ def K2inv_mat00(E,L,a0,r0,P0,qfactor=False):
 
 
 # Just compute l'=l=2 portion of K2inv
-def K2inv_mat22(E,L,a2,qfactor=False):
+def K2inv_mat22(E,L,a2):
   nklist = defns.list_nnk(E,L)
   K2inv22 = []
   for nkvec in nklist:
     kvec = [i*2*pi/L for i in nkvec]
-    K2inv22.append(K2inv(E,kvec,2,0,0,0,0,a2,qfactor)*np.identity(5))
+    K2inv22.append(K2inv(E,kvec,2,0,0,0,0,a2)*np.identity(5))
   return block_diag(*K2inv22)
 
 

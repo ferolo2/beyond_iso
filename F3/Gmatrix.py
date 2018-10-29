@@ -3,7 +3,7 @@ import math
 import numpy as np
 import sums_alt as sums
 import F2_alt as F2
-from defns import y2, list_nnk, lm_idx, chop, full_matrix
+from defns import y2, y2real, list_nnk, lm_idx, chop, full_matrix
 from numba import jit
 
 @jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%
@@ -53,7 +53,7 @@ def boost(nnp, nnk,e):
 
 # Calculate Gtilde = G/(2*omega)
 # TB: Choose basis inside
-def G(e, L, nnp, nnk,l1,m1,l2,m2,qfactor=False):
+def G(e, L, nnp, nnk,l1,m1,l2,m2):
     p = sums.norm(nnp) * 2. *math.pi/L
     k = sums.norm(nnk) * 2. *math.pi/L
     pk = sums.norm(np.add(nnk,nnp)) * 2. *math.pi/L
@@ -80,27 +80,24 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2,qfactor=False):
     if(l1==2):
         #momfactor1 = (ks)**l1/qps2
         momfactor1 = qps2**(-l1/2) # TB: ks**l1 included in my y2(nnks)
-        Ylmlm = y2(nnks,m1,Ytype)
+        #Ylmlm = y2(nnks,m1,Ytype)
+        Ylmlm = y2real(nnks,m1)
     if(l2==2):
         #momfactor2 = (ps)**l2/qks2
         momfactor2 = qks2**(-l2/2) # TB: ps**l2 included in my y2(nnps)
-        Ylmlm = Ylmlm * y2(nnps,m2,Ytype)
+        #Ylmlm = Ylmlm * y2(nnps,m2,Ytype)
+        Ylmlm = Ylmlm * y2real(nnps,m2)
 
     #out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm * momfactor1 * momfactor2
-
     out = sums.hh(e,p)*sums.hh(e,k)/(L**3 * 4*omp*omk*(bkp2-1)) *Ylmlm # TB, no q
-    if qfactor==True:   # put in q factor (if desired)
-      out *= momfactor1 * momfactor2
 
-    if (Ytype=='r' or Ytype=='real') and abs(out.imag)>1e-15:
-        print('Error in G: imaginary part in real basis output')
-    else:
-      out = out.real
-    return out
+    # if (Ytype=='r' or Ytype=='real') and abs(out.imag)>1e-15:
+    #     sys.exit('Error in G: imaginary part in real basis output')
+    return out.real
 
 
 # Full Gtilde matrix (new structure)
-def Gmat(E,L,qfactor=False):
+def Gmat(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
   #print(nnk_list)
@@ -118,7 +115,7 @@ def Gmat(E,L,qfactor=False):
         for i2 in range(6):
           [l2,m2] = lm_idx(i2)
 
-          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2,qfactor)
+          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
 
       Gp.append(Gpk)
 
@@ -128,7 +125,7 @@ def Gmat(E,L,qfactor=False):
 
 
 # Just compute l'=l=0 portion
-def Gmat00(E,L,qfactor=False):
+def Gmat00(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
 
@@ -144,7 +141,7 @@ def Gmat00(E,L,qfactor=False):
 
 
 # Just compute l'=l=2 portion
-def Gmat22(E,L,qfactor=False):
+def Gmat22(E,L):
   nnk_list = list_nnk(E,L)
   N = len(nnk_list)
 
@@ -159,7 +156,7 @@ def Gmat22(E,L,qfactor=False):
       for i in range(5):
         for j in range(5):
           mp = i-2;  m = j-2
-          Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m,qfactor)
+          Gpk[i,j] = G(E,L,nnp,nnk,2,mp,2,m)
       Gp.append(Gpk)
     Gfull.append(Gp)
   return chop(np.block(Gfull))

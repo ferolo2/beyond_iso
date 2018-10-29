@@ -17,11 +17,11 @@ import defns, projections as proj, analysis_defns as AD, group_theory_defns as G
 
 alpha = 0.5
 a0 = 0.1; r0=0; P0=0; a2=0.3
-K0=40; K1=0; K2=0; A=70; B=1e2
+K0=0; K1=0; K2=0; A=0; B=0
 L = 6
-#E = 3.89594387 # E1=3.8959438608040386  
-#E = 4.57393085 # E2=4.573930845701579
-E = 4.68290928  # E3=4.682909283654828
+E = 3.89594387  # E1=3.8959438608040386
+#E = 4.57393085  # E2=4.573930845701579
+#E = 4.68290928  # E3=4.682909283654828
 I = 'A1+'
 
 float_formatter = lambda x: "%.2f" % x
@@ -35,18 +35,22 @@ if a2==0:
   G = Gmatrix.Gmat00(E,L)
   K2i = K2i_mat.K2inv_mat00(E,L,a0,r0,P0)
   K3 = proj.l0_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B,'r'))
+  Q = proj.l0_proj(defns.Qmat(E,L)); Qi=LA.inv(Q)
   P = proj.P_irrep_subspace_00(E,L,I)
 elif a0==0:
   F = F2_alt.Fmat22(E,L,alpha)
   G = Gmatrix.Gmat22(E,L)
   K2i = K2i_mat.K2inv_mat22(E,L,a2)
   K3 = proj.l2_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B,'r'))
+  Q = proj.l2_proj(defns.Qmat(E,L)); Qi=LA.inv(Q)
   P = proj.P_irrep_subspace_22(E,L,I)
 else:
   F = F2_alt.Fmat(E,L,alpha)
   G = Gmatrix.Gmat(E,L)
   K2i = K2i_mat.K2inv_mat(E,L,a0,r0,P0,a2)
   K3 = K3quad.K3mat(E,L,K0,K1,K2,A,B,'r')
+  Q = defns.Qmat(E,L);  print(Q[0:5,0:5])
+  Qi=LA.inv(Q); print(Qi[0:5,0:5])
   P = proj.P_irrep_subspace(E,L,I)
 
 S = defns.chop(F+G)
@@ -60,10 +64,17 @@ F3 = T1 @ F / (3*L**3); F3i = defns.chop(LA.inv(F3))
 
 
 proj.pole_decomp(F3,E,L)
-#proj.pole_decomp(K3,E,L,thresh=0.01)
-#proj.pole_decomp(F3i+K3,E,L,size='small',thresh=1e-3)
+proj.pole_decomp(K3,E,L,thresh=0.01)
+proj.pole_decomp(F3i+K3,E,L,size='small',thresh=1e-3)
+
+
+proj.pole_decomp(Qi@F3@Qi,E,L)
+proj.pole_decomp(Q@K3@Q,E,L,thresh=0.01)
+proj.pole_decomp(Q@(F3i+K3)@Q,E,L,size='small',thresh=1e-3)
+
+
 #proj.pole_decomp(np.identity(len(F3))+F3@K3,E,L,size='small',thresh=1e-3)
-proj.pole_decomp(F3@LA.inv(np.identity(len(F3))+F3@K3),E,L)
+#proj.pole_decomp(F3@LA.inv(np.identity(len(F3))+F3@K3),E,L)
 
 
 F_I = P.T@F@P
@@ -151,5 +162,3 @@ for i in F3_ivec:
 #print((F3i_I+K3_I)/p)
 
 #print(p)
-
-

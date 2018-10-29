@@ -1,6 +1,6 @@
 import numpy as np
 pi = np.pi
-import math
+import math, sys
 import defns
 
 from numpy.lib.scimath import sqrt
@@ -72,6 +72,7 @@ def norm(nnk):
         nk += i**2
     return npsqrt(nk)
 
+
 def hh(e, k):
     alpH = -1.
     aux1 = (1. + alpH)/4.
@@ -110,24 +111,24 @@ def summand(e, L, nna, nnk, nk, gamma, x2,l1,m1,l2,m2,alpha,Ytype='r'):
 
     Ylmlm=1
     if l1==2:
-      Ylmlm = defns.y2(rr,m1,Ytype)
+      #Ylmlm = defns.y2(rr,m1,Ytype)
+      Ylmlm = defns.y2real(rr,m1)
     if l2==2:
-      Ylmlm = Ylmlm * defns.y2(rr,m2,Ytype)
+      #Ylmlm = Ylmlm * defns.y2(rr,m2,Ytype)
+      Ylmlm = Ylmlm * defns.y2real(rr,m2)
 
     exponential = exp(alpha*(x2-rr2))
 
     out = Ylmlm*exponential/(x2 - rr2)
-    if (Ytype=='r' or Ytype=='real') and abs(out.imag)>1e-15:
-      print('Error in summand: imaginary part in real basis')
-    else:
-      out = out.real
-    return out
+    # if (Ytype=='r' or Ytype=='real') and abs(out.imag)>1e-15:
+    #   sys.exit('Error in summand: imaginary part in real basis')
+    return out.real
 
 
 # Find maximum n needed in sum_nnk
 @njit(fastmath=True) #This is compatible with numba
 def getnmax2(cutoff,alpha,x2,gamma):
-     n0=1
+    n0=1
     res = 2*math.pi*npsqrt(math.pi/alpha) * exp(alpha*x2)*myerfc(npsqrt(alpha)*n0)
     while(res>cutoff):
         n0+=1
@@ -201,7 +202,7 @@ def sum_000(e, L,l1,m1,l2,m2,alpha):
         cutoff=1e-9
 
 
-        nmax = getnmax(cutoff,alpha,x2,gamma)
+        nmax = getnmax2(cutoff,alpha,x2,gamma)
         ressum= 0
 
         for n1 in range(0,nmax+1):
@@ -294,10 +295,6 @@ def sum_aa0(e, L,nnk,l1,m1,l2,m2,alpha):
 
 
 
-
-
-
-
 @autojit
 def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
     nk = norm(nnk)
@@ -340,7 +337,7 @@ def int_nnk(e,L,nnk,l1,m1,l2,m2,alpha):
 
 
 # Calculate F (this is really Ftilde=F/(2*omega))
-def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha,qfactor=False):
+def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha):
     nk = norm(nnk)
     k = nk*2*math.pi/L
     omk = npsqrt(1. + k**2)
@@ -361,10 +358,7 @@ def F2KSS(e,L,nnk,l1,m1,l2,m2,alpha,qfactor=False):
         #C = 1/(32*omk*math.pi**2*L*(e - omk))
         C = hhk/(32*omk*math.pi**2*L*(e - omk)) #TB
 
-        out = (SUM-INT)*C
-        if qfactor==True:   # put in explicit qk* factor (if desired)
-          out *= defns.qst(e,k)**(-l1-l2)
-        return out
+        return (SUM-INT)*C
 
 
 

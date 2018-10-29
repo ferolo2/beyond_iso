@@ -27,22 +27,22 @@ def myabs(x):
 ########################################################################
 
 # TB: make 6x6 F-tilde matrix for a given nnk
-def Fmat_k(E,L,nnk,alpha,qfactor=False):
+def Fmat_k(E,L,nnk,alpha):
   # k=(0,0,0)
   if nnk==[0,0,0]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     return np.diag([a,b,b,c,b,c])
 
   # k=(0,0,a)
   elif nnk[0]==nnk[1]==0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha,qfactor)
-    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
-    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha,qfactor)
-    f = sums.F2KSS(E,L,nnk,0,0,2,0,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
+    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
+    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
+    f = sums.F2KSS(E,L,nnk,0,0,2,0,alpha)
 
     out = np.diag([a,b,c,d,c,e])
     out[0][3] = f; out[3][0] = f
@@ -50,15 +50,15 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
 
   # k=(a,a,0)
   elif nnk[0]==nnk[1]!=0 and nnk[2]==0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha,qfactor)
-    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
-    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha,qfactor)
-    f = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha,qfactor)
-    g = sums.F2KSS(E,L,nnk,0,0,2,0,alpha,qfactor)
-    h = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha,qfactor)
-    i = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
+    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
+    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
+    f = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha)
+    g = sums.F2KSS(E,L,nnk,0,0,2,0,alpha)
+    h = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha)
+    i = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha)
 
     out = np.diag([a,b,c,d,c,e])
     out[0][1] = f; out[1][0] = f
@@ -69,12 +69,12 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
 
   # k=(a,a,a)
   elif nnk[0]==nnk[1]==nnk[2]!=0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
-    d = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha,qfactor)
-    e = sums.F2KSS(E,L,nnk,2,-2,2,-1,alpha,qfactor)
-    f = sums.F2KSS(E,L,nnk,2,-1,2,0,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
+    d = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha)
+    e = sums.F2KSS(E,L,nnk,2,-2,2,-1,alpha)
+    f = sums.F2KSS(E,L,nnk,2,-1,2,0,alpha)
 
     out = np.array([
       [a,d,d,0,d,0],
@@ -88,19 +88,19 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
 
   # k=(a,b,0)
   elif myabs(nnk[0])!=myabs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha,qfactor)
-    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
-    e = sums.F2KSS(E,L,nnk,2,1,2,1,alpha,qfactor)
-    f = sums.F2KSS(E,L,nnk,2,2,2,2,alpha,qfactor)
-    g = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha,qfactor)
-    h = sums.F2KSS(E,L,nnk,0,0,2,0,alpha,qfactor)
-    i = sums.F2KSS(E,L,nnk,0,0,2,2,alpha,qfactor)
-    j = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha,qfactor)
-    k = sums.F2KSS(E,L,nnk,2,-2,2,2,alpha,qfactor)
-    l = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha,qfactor)
-    m = sums.F2KSS(E,L,nnk,2,0,2,2,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
+    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
+    e = sums.F2KSS(E,L,nnk,2,1,2,1,alpha)
+    f = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
+    g = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha)
+    h = sums.F2KSS(E,L,nnk,0,0,2,0,alpha)
+    i = sums.F2KSS(E,L,nnk,0,0,2,2,alpha)
+    j = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha)
+    k = sums.F2KSS(E,L,nnk,2,-2,2,2,alpha)
+    l = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha)
+    m = sums.F2KSS(E,L,nnk,2,0,2,2,alpha)
 
     out = np.array([
       [a,g,0,h,0,i],
@@ -114,19 +114,19 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
 
   # k=(a,a,b)
   elif nnk[0]==nnk[1] and myabs(nnk[0])!=myabs(nnk[2]) and nnk[0]!=0!=nnk[2]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha,qfactor)
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha,qfactor)
-    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha,qfactor)
-    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha,qfactor)
-    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha,qfactor)
-    f = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha,qfactor)
-    g = sums.F2KSS(E,L,nnk,0,0,2,-1,alpha,qfactor)
-    h = sums.F2KSS(E,L,nnk,0,0,2,0,alpha,qfactor)
-    i = sums.F2KSS(E,L,nnk,2,-2,2,-1,alpha,qfactor)
-    j = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha,qfactor)
-    k = sums.F2KSS(E,L,nnk,2,-1,2,0,alpha,qfactor)
-    l = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha,qfactor)
-    m = sums.F2KSS(E,L,nnk,2,-1,2,2,alpha,qfactor)
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
+    c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
+    d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
+    e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
+    f = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha)
+    g = sums.F2KSS(E,L,nnk,0,0,2,-1,alpha)
+    h = sums.F2KSS(E,L,nnk,0,0,2,0,alpha)
+    i = sums.F2KSS(E,L,nnk,2,-2,2,-1,alpha)
+    j = sums.F2KSS(E,L,nnk,2,-2,2,0,alpha)
+    k = sums.F2KSS(E,L,nnk,2,-1,2,0,alpha)
+    l = sums.F2KSS(E,L,nnk,2,-1,2,1,alpha)
+    m = sums.F2KSS(E,L,nnk,2,-1,2,2,alpha)
 
     out = np.array([
       [a,f,g,h,g,0],
@@ -152,7 +152,7 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
           l2=0; m2=0
         else:
           l2=2; m2=i2-3
-        out[i1][i2] = sums.F2KSS(E,L,nnk,l1,m1,l2,m2,alpha,qfactor)
+        out[i1][i2] = sums.F2KSS(E,L,nnk,l1,m1,l2,m2,alpha)
         if i1!=i2:
           out[i2][i1] = out[i1][i2]
 
@@ -163,10 +163,10 @@ def Fmat_k(E,L,nnk,alpha,qfactor=False):
 
 
 # Compute all Fmat_k's in a given orbit
-def Fmat_shell(E,L,nnk,alpha,qfactor=False):
+def Fmat_shell(E,L,nnk,alpha):
   # k=(0,0,0)
   if list(nnk)==[0,0,0]:
-    F_000 = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_000 = Fmat_k(E,L,nnk,alpha)
     return [F_000]
 
   # k=(0,0,a)
@@ -174,7 +174,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
     U132 = Dmat([1,3,2])
     U321 = Dmat([3,2,1])
 
-    F_00a = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_00a = Fmat_k(E,L,nnk,alpha)
     F_0a0 = U132 @ F_00a @ U132.T
     F_a00 = U321 @ F_00a @ U321.T
 
@@ -187,7 +187,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
     U321 = Dmat([3,2,1])
     U1m23 = Dmat([1,-2,3])
 
-    F_aa0 = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_aa0 = Fmat_k(E,L,nnk,alpha)
     F_a0a = U132 @ F_aa0 @ U132.T
     F_0aa = U321 @ F_aa0 @ U321.T
 
@@ -207,7 +207,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
     U132 = Dmat([1,3,2])
     U321 = Dmat([3,2,1])
 
-    F_aaa = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_aaa = Fmat_k(E,L,nnk,alpha)
     F_aama = U12m3 @ F_aaa @ U12m3.T
     F_amaa = U132 @ F_aama @ U132.T
     F_maaa = U321 @ F_aama @ U321.T
@@ -223,7 +223,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
     U321 = Dmat([3,2,1])
     U1m23 = Dmat([1,-2,3])
 
-    F_ab0 = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_ab0 = Fmat_k(E,L,nnk,alpha)
     F_ba0 = U213 @ F_ab0 @ U213.T
 
     F_a0b = U132 @ F_ab0 @ U132.T
@@ -256,7 +256,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
     U1m23 = Dmat([1,-2,3])
     U213 = Dmat([2,1,3])
 
-    F_aab = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_aab = Fmat_k(E,L,nnk,alpha)
     F_aba = U132 @ F_aab @ U132.T
     F_baa = U321 @ F_aab @ U321.T
 
@@ -282,7 +282,7 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
 
   # k=(a,b,c)
   elif 0<nnk[0]<nnk[1]<nnk[2]:
-    F_abc = Fmat_k(E,L,nnk,alpha,qfactor)
+    F_abc = Fmat_k(E,L,nnk,alpha)
     F_list = [F_abc]
 
     p_list = perms_list([1,2,3])
@@ -299,19 +299,19 @@ def Fmat_shell(E,L,nnk,alpha,qfactor=False):
 
 #######################################################
 # Use symmetries to speed up computation of full matrix
-def Fmat(E,L,alpha,qfactor=False):
+def Fmat(E,L,alpha):
   shells = shell_list(E,L)
   #print(shells)
   F_list = []
   for nnk in shells:
-    F_list += Fmat_shell(E,L,nnk,alpha,qfactor)
+    F_list += Fmat_shell(E,L,nnk,alpha)
 
   # Should probably just return F_list for computations
   return block_diag(*F_list)
 
 
 # Just compute l'=l=0 portion
-def Fmat00(E,L,alpha,qfactor=False):
+def Fmat00(E,L,alpha):
   shells = shell_list(E,L)
 
   F_list = []
@@ -322,10 +322,10 @@ def Fmat00(E,L,alpha,qfactor=False):
 
 
 # Just compute l'=l=2 portion
-def Fmat22(E,L,alpha,qfactor):
+def Fmat22(E,L,alpha):
   # Right now this doesn't save any time since it computes the full matrix first
   # Not sure if this is worth trying to optimize more
-  return l2_proj(Fmat(E,L,alpha,qfactor))
+  return l2_proj(Fmat(E,L,alpha))
 
 
 

@@ -112,6 +112,16 @@ def E_2pt_free_list(L,count,nmax=5):
 
 
 ##########################################################
+# Q matrix:  diagonal in k,l,m with Q(k,l,m) = (qk*)^l
+def Qmat(E,L):
+  out=[]
+  for shell in shell_list(E,L):
+    q = qst(E,LA.norm(shell))
+    out = out + ([1.]+5*[(q**2).real]) * len(shell_nnk_list(shell))
+  return np.diag(out)
+
+
+##########################################################
 # Convert block-matrix index to (l,m)
 @jit(nopython=True,fastmath=True,parallel=True) #FRL, it speeds up a bit. I changed the error condition to make it compatible with numba.
 def lm_idx(i):
@@ -282,6 +292,7 @@ def list_nnk_old(E,L):
 ####################################################################################
 
 # Complex spherical harmonics
+@jit(nopython=True,fastmath=True,parallel=True) #FRL
 def y2complex(kvec,m): # y2 = |kvec|**2 * sqrt(4pi) * Y2
   if m==2:
     return sqrt(15/8)*(kvec[0]+1j*kvec[1])**2
@@ -313,7 +324,7 @@ def y2real(kvec,m): # y2 = sqrt(4pi) * |kvec|**2 * Y2
     print('Error: invalid m input in y2real')
 
 # Spherical harmonics w/ flag for real (default) vs. complex
-@jit(nopython=True,fastmath=True,parallel=True)
+#@jit(nopython=True,fastmath=True,parallel=True)
 def y2(kvec,m,Ytype='r'):
   if Ytype=='real' or Ytype=='r':
     return y2real(kvec,m)
@@ -321,6 +332,7 @@ def y2(kvec,m,Ytype='r'):
     return y2complex(kvec,m)
 
 # Generalize to include l=0 case
+#@jit(nopython=True,fastmath=True,parallel=True) #FRL
 def ylm(kvec,l,m,Ytype='r'):
   if l==m==0:
     return 1
