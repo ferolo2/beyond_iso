@@ -1,7 +1,8 @@
 import numpy as np
 sqrt=np.sqrt; pi=np.pi; conj=np.conjugate; LA=np.linalg;
 
-from K3A import K3A; from K3B import K3B; from K3cubicA import K3cubicA
+from K3A import K3A; from K3B import K3B
+from K3cubicA import K3cubicA; from K3cubicB import K3cubicB
 from defns import list_nnk, lm_idx, chop, full_matrix, qst
 
 #################################################################
@@ -51,8 +52,9 @@ def K3mat(E,L,K0,K1,K2,A,B,Ytype='r'):
         for i2 in range(6):
           [l,m] = lm_idx(i2)
 
-          K3pk[i1][i2] = K3quad(E,pvec,lp,mp,kvec,l,m,K0,K1,K2,A,B,Ytype)
-          K3pk[i1][i2] += 100*K3cubicA(E,pvec,lp,mp,kvec,l,m) # BLEH temporary
+          K3pk[i1,i2] = K3quad(E,pvec,lp,mp,kvec,l,m,K0,K1,K2,A,B,Ytype)
+          #K3pk[i1,i2] += 100*K3cubicA(E,pvec,lp,mp,kvec,l,m) # BLEH temporary
+          K3pk[i1,i2] += 100*K3cubicB(E,pvec,lp,mp,kvec,l,m) # BLEH temporary
 
       K3p.append(K3pk)
 

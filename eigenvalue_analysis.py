@@ -34,23 +34,22 @@ if a2==0:
   F = F2_alt.Fmat00(E,L,alpha)
   G = Gmatrix.Gmat00(E,L)
   K2i = K2i_mat.K2inv_mat00(E,L,a0,r0,P0)
-  K3 = proj.l0_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B,'r'))
+  K3 = proj.l0_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B))
   Q = proj.l0_proj(defns.Qmat(E,L)); Qi=LA.inv(Q)
   P = proj.P_irrep_subspace_00(E,L,I)
 elif a0==0:
   F = F2_alt.Fmat22(E,L,alpha)
   G = Gmatrix.Gmat22(E,L)
   K2i = K2i_mat.K2inv_mat22(E,L,a2)
-  K3 = proj.l2_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B,'r'))
+  K3 = proj.l2_proj(K3quad.K3mat(E,L,K0,K1,K2,A,B))
   Q = proj.l2_proj(defns.Qmat(E,L)); Qi=LA.inv(Q)
   P = proj.P_irrep_subspace_22(E,L,I)
 else:
   F = F2_alt.Fmat(E,L,alpha)
   G = Gmatrix.Gmat(E,L)
   K2i = K2i_mat.K2inv_mat(E,L,a0,r0,P0,a2)
-  K3 = K3quad.K3mat(E,L,K0,K1,K2,A,B,'r')
-  Q = defns.Qmat(E,L);  print(Q[0:5,0:5])
-  Qi=LA.inv(Q); print(Qi[0:5,0:5])
+  K3 = K3quad.K3mat(E,L,K0,K1,K2,A,B)
+  Q = defns.Qmat(E,L); Qi=LA.inv(Q)
   P = proj.P_irrep_subspace(E,L,I)
 
 S = defns.chop(F+G)
@@ -62,12 +61,12 @@ T2 = np.identity(len(F)) - 3*Hi @ F
 F3 = T1 @ F / (3*L**3); F3i = defns.chop(LA.inv(F3))
 #F3 = (F/3 - F@Hi@F) / L**3; F3i = defns.chop(LA.inv(F3))
 
-
+print("q factors removed")
 proj.pole_decomp(F3,E,L)
 proj.pole_decomp(K3,E,L,thresh=0.01)
 proj.pole_decomp(F3i+K3,E,L,size='small',thresh=1e-3)
 
-
+print("q factors included")
 proj.pole_decomp(Qi@F3@Qi,E,L)
 proj.pole_decomp(Q@K3@Q,E,L,thresh=0.01)
 proj.pole_decomp(Q@(F3i+K3)@Q,E,L,size='small',thresh=1e-3)
@@ -89,6 +88,7 @@ T1_I = P.T@T1@P
 T2_I = P.T@T2@P
 F3_I = P.T@F3@P; F3i_I = defns.chop(LA.inv(F3_I))
 K3_I = P.T@K3@P
+Q_I = P.T@Q@P; Qi_I = LA.inv(Q_I)
 
 
 #nnp=[0,0,0]
@@ -137,12 +137,12 @@ K3_I = P.T@K3@P
 #print(sorted(LA.eigvals(F3i+K3).real,key=abs))
 
 
-[F3_elist,F3_vlist] = LA.eig(F3i_I)
+[F3_elist,F3_vlist] = LA.eig(Q_I@F3i_I@Q_I)
 #[F3_elist,F3_vlist] = LA.eig(F3i)
 F3_ivec = [i for i,e in enumerate(F3_elist) if abs(e)<1e-2]
 
 
-[K3_elist,K3_vlist] = LA.eig(K3_I)
+[K3_elist,K3_vlist] = LA.eig(Q_I@K3_I@Q_I)
 #[K3_elist,K3_vlist] = LA.eig(K3)
 K3_ivec = [i for i,e in enumerate(K3_elist) if abs(e)>1e-2]
 print()
@@ -152,8 +152,11 @@ for i in F3_ivec:
   for j in K3_ivec:
     e_K3 = K3_elist[j].real
     v_K3 = K3_vlist[:,j]
-    #print(v_F3)
-    print(e_F3,e_K3,abs(np.dot(v_F3,v_K3)))
+    print("F3i,K3 eigs:",e_F3,e_K3)
+    print("F3i evec:",v_F3)
+    print("K3 evec:",v_K3)
+    print("overlap:",abs(np.dot(v_F3,v_K3)))
+    print()
 
 
 #print(F_I/p)
