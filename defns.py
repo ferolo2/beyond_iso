@@ -59,7 +59,7 @@ def E_free_list(L,count,*args):
       m12_2 = sum([x**2 for x in [-nvec_list[i1][i]-nvec_list[i2][i] for i in range(3)]])
 
       E1 = sqrt((2*pi/L)**2*m1_2+1)
-      E2 = sqrt((2*pi/L)**2*m2_2+1)        
+      E2 = sqrt((2*pi/L)**2*m2_2+1)
       E12 = sqrt((2*pi/L)**2*m12_2+1)
 
       out[tuple(sorted([m1_2,m2_2,m12_2]))] = E1+E2+E12
@@ -71,13 +71,25 @@ def E_free_list(L,count,*args):
   return out
 
 
-# List first n 2-pt. free energies for given L
-def E_2pt_free_list(L,count,*args):
-  if len(args)==0:
-    nmax = 5
+# List first n energies where q*=0 for given L (these give "false poles" unless the explicit q* factors in F3 are removed)
+def false_poles(L,n2max):
+  out = []
+  if n2max<=6:
+    for n2 in range(n2max+1):
+      out.append(sqrt((2*pi/L)**2*n2 + 1) + sqrt((2*pi/L)**2*n2 + 4))
   else:
-    nmax = args[0]
+    nmax = floor(sqrt(n2max))
+    for a in range(nmax+1):
+      for b in range(a,nmax+1):
+        for c in range(b,nmax+1):
+          n2 = a**2+b**2+c**2
+          if n2<=n2max:
+            out.append(sqrt((2*pi/L)**2*n2 + 1) + sqrt((2*pi/L)**2*n2 + 4))
+  return out
 
+
+# List first n 2-pt. free energies for given L (not sure these are relevant)
+def E_2pt_free_list(L,count,nmax=5):
   nvec_list = []
   for n1 in range(-nmax,nmax+1):
     for n2 in range(-nmax,nmax+1):
@@ -100,16 +112,24 @@ def E_2pt_free_list(L,count,*args):
 
 
 ##########################################################
+# Q matrix:  diagonal in k,l,m with Q(k,l,m) = (qk*)^l
+def Qmat(E,L):
+  out=[]
+  for shell in shell_list(E,L):
+    q = qst(E,LA.norm(shell))
+    out = out + ([1.]+5*[(q**2).real]) * len(shell_nnk_list(shell))
+  return np.diag(out)
+
+
+##########################################################
 # Convert block-matrix index to (l,m)
 @jit(nopython=True,fastmath=True,parallel=True) #FRL, it speeds up a bit. I changed the error condition to make it compatible with numba.
 def lm_idx(i):
-  if i>5 or i<0:
-    print('Error in lm_idx: invalid index input')
+  i = i%6
+  if i==0:
+    [l,m] = [0,0]
   else:
-    if i==0:
-      [l,m] = [0,0]
-    else:
-      [l,m] = [2,i-3]
+    [l,m] = [2,i-3]
   return [l,m]
 
 # Replace small real numbers in array with zero
@@ -138,9 +158,9 @@ def Emin(shell,L,alpH=-1,xmin=0.01):
   c = (3-alpH)*xmin + (1+alpH)
   k = LA.norm([x*2*pi/L for x in shell])
   return omega(k) + sqrt(k**2+c)
-  
 
-# Create list of shells/orbits 
+
+# Create list of shells/orbits
 # Permutation conventions: 000, 00a, aa0, aaa, ab0, aab, abc
 def shell_list(E,L):
   nmaxreal = kmax(E)*L/(2*pi)
@@ -156,9 +176,9 @@ def shell_list(E,L):
             shells.append((n2,n3,n1))
           else:
             shells.append((n1,n2,n3))
-  # Sort by magnitude         
+  # Sort by magnitude
   shells = sorted(shells, key=lambda k: LA.norm(k))
-  return shells 
+  return shells
 
 
 # Find where new shells open up & # of eigs increases
@@ -177,7 +197,7 @@ def perms_list(nnk):
   p_list += list(perms([a,b,-c]))
   p_list += list(perms([a,-b,c]))
   p_list += list(perms([-a,b,c]))
-  
+
   p_list = [ list(p) for p in p_list ]
   return p_list
 
@@ -202,7 +222,7 @@ def shell_nnk_list(shell):
   elif shell[0]==shell[1]==shell[2]>0:
     a = shell[0]
     return [(a,a,a),(a,a,-a),(a,-a,a),(-a,a,a), (-a,-a,-a),(-a,-a,a),(-a,a,-a),(a,-a,-a)]
-  
+
   # ab0
   elif 0==shell[2]<shell[0]<shell[1]:
     a = shell[0]; b = shell[1]
@@ -234,7 +254,7 @@ def shell_nnk_list(shell):
     auxshell2 = 1*auxshell1
     for i in range(len(auxshell1)):
         auxshell2[i] = [x*-1 for x in auxshell1[i]]
-    
+
     return auxshell1+auxshell2
 
   else:
@@ -272,6 +292,7 @@ def list_nnk_old(E,L):
 ####################################################################################
 
 # Complex spherical harmonics
+@jit(nopython=True,fastmath=True,parallel=True) #FRL
 def y2complex(kvec,m): # y2 = |kvec|**2 * sqrt(4pi) * Y2
   if m==2:
     return sqrt(15/8)*(kvec[0]+1j*kvec[1])**2
@@ -302,12 +323,23 @@ def y2real(kvec,m): # y2 = sqrt(4pi) * |kvec|**2 * Y2
   else:
     print('Error: invalid m input in y2real')
 
-# Spherical harmonics w/ flag for real vs. complex (default)
-def y2(kvec,m,Ytype):
+# Spherical harmonics w/ flag for real (default) vs. complex
+#@jit(nopython=True,fastmath=True,parallel=True)
+def y2(kvec,m,Ytype='r'):
   if Ytype=='real' or Ytype=='r':
     return y2real(kvec,m)
   else:
     return y2complex(kvec,m)
+
+# Generalize to include l=0 case
+#@jit(nopython=True,fastmath=True,parallel=True) #FRL
+def ylm(kvec,l,m,Ytype='r'):
+  if l==m==0:
+    return 1
+  elif l==2:
+    return y2(kvec,m,Ytype)
+  else:
+    print('Error: ylm can only take l=0 or l=2')
 
 
 
@@ -327,7 +359,7 @@ def cpx2real(cpx_mat):
     [0, 1/sqrt(2), 0, 0, 0, 1/sqrt(2)]
   ])
   Ui = U.conj().T
-  
+
   # block size
   N = int(len(cpx_mat)/6)
 

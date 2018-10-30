@@ -1,0 +1,19 @@
+{
+  "logger": {
+    "title": "Remote Sync"
+  },
+  "uploadOnSave": false,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "mox.hyak.uw.edu",
+  "port": "22",
+  "target": "/usr/lusers/blanton1/Research/beyond_iso",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "blanton1",
+  "password": "shadow2@",
+  "watch": [],
+  "transport": "scp"
+}

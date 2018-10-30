@@ -90,7 +90,7 @@ def main():
 
     
     # Data & plot directories
-    K2_dir = 'a0='+str(a0)+'_r0='+str(r0)+'_P0='+str(P0)+'_a2='+str(a2)+'/'
+    K2_dir = 'L='+str(L)+'/a0='+str(a0)+'_r0='+str(r0)+'_P0='+str(P0)+'_a2='+str(a2)+'/'
     data_dir = '../Data/'+K2_dir
     plot_dir = '../Plots/'+K2_dir
     

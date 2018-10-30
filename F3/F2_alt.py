@@ -30,15 +30,15 @@ def myabs(x):
 def Fmat_k(E,L,nnk,alpha):
   # k=(0,0,0)
   if nnk==[0,0,0]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     return np.diag([a,b,b,c,b,c])
 
   # k=(0,0,a)
   elif nnk[0]==nnk[1]==0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
     d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
@@ -50,8 +50,8 @@ def Fmat_k(E,L,nnk,alpha):
 
   # k=(a,a,0)
   elif nnk[0]==nnk[1]!=0 and nnk[2]==0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
     d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
@@ -69,8 +69,8 @@ def Fmat_k(E,L,nnk,alpha):
 
   # k=(a,a,a)
   elif nnk[0]==nnk[1]==nnk[2]!=0:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     d = sums.F2KSS(E,L,nnk,0,0,2,-2,alpha)
     e = sums.F2KSS(E,L,nnk,2,-2,2,-1,alpha)
@@ -88,8 +88,8 @@ def Fmat_k(E,L,nnk,alpha):
 
   # k=(a,b,0)
   elif myabs(nnk[0])!=myabs(nnk[1]) and nnk[2]==0 and nnk[0]!=0!=nnk[1]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
     d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     e = sums.F2KSS(E,L,nnk,2,1,2,1,alpha)
@@ -114,8 +114,8 @@ def Fmat_k(E,L,nnk,alpha):
 
   # k=(a,a,b)
   elif nnk[0]==nnk[1] and myabs(nnk[0])!=myabs(nnk[2]) and nnk[0]!=0!=nnk[2]:
-    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha) 
-    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha) 
+    a = sums.F2KSS(E,L,nnk,0,0,0,0,alpha)
+    b = sums.F2KSS(E,L,nnk,2,-2,2,-2,alpha)
     c = sums.F2KSS(E,L,nnk,2,-1,2,-1,alpha)
     d = sums.F2KSS(E,L,nnk,2,0,2,0,alpha)
     e = sums.F2KSS(E,L,nnk,2,2,2,2,alpha)
@@ -174,7 +174,7 @@ def Fmat_shell(E,L,nnk,alpha):
     U132 = Dmat([1,3,2])
     U321 = Dmat([3,2,1])
 
-    F_00a = Fmat_k(E,L,nnk,alpha)    
+    F_00a = Fmat_k(E,L,nnk,alpha)
     F_0a0 = U132 @ F_00a @ U132.T
     F_a00 = U321 @ F_00a @ U321.T
 
@@ -196,7 +196,7 @@ def Fmat_shell(E,L,nnk,alpha):
     F_0ama = U321 @ F_ama0 @ U321.T
 
     F_list = list(chop(
-      [F_aa0,F_a0a,F_0aa, F_ama0,F_a0ma,F_0ama] 
+      [F_aa0,F_a0a,F_0aa, F_ama0,F_a0ma,F_0ama]
       ))
 
     return F_list*2 # duplicate for Z2 symmetry
@@ -255,7 +255,7 @@ def Fmat_shell(E,L,nnk,alpha):
     U12m3 = Dmat([1,2,-3])
     U1m23 = Dmat([1,-2,3])
     U213 = Dmat([2,1,3])
-    
+
     F_aab = Fmat_k(E,L,nnk,alpha)
     F_aba = U132 @ F_aab @ U132.T
     F_baa = U321 @ F_aab @ U321.T
@@ -305,7 +305,7 @@ def Fmat(E,L,alpha):
   F_list = []
   for nnk in shells:
     F_list += Fmat_shell(E,L,nnk,alpha)
-  
+
   # Should probably just return F_list for computations
   return block_diag(*F_list)
 
@@ -327,7 +327,7 @@ def Fmat22(E,L,alpha):
   # Not sure if this is worth trying to optimize more
   return l2_proj(Fmat(E,L,alpha))
 
-    
+
 
 
 
@@ -340,7 +340,7 @@ def Fmat22(E,L,alpha):
 def full_F2_00_matrix(e,L):
 
     alpha=0.5
-    
+
     nklist = list_nnk(e,L)
 
 
@@ -360,7 +360,7 @@ def F2_20_matrix(e,L,m):
     nklist = list_nnk(e,L)
 
     alpha=0.5
-    
+
     F2_20 = []
     for nnk in nklist:
         res = sums.F2KSS(e,L,nnk,2,m,0,0,alpha)
@@ -375,7 +375,7 @@ def F2_02_matrix(e,L,m):
     nklist = list_nnk(e,L)
 
     alpha=0.5
-    
+
     F2_02 = []
     for nnk in nklist:
        # print(nnk)
@@ -389,18 +389,18 @@ def F2_22_matrix(e,L,m1,m2):
 
     alpha=0.5
     nklist = list_nnk(e,L)
-    
+
     F2_22 = []
     for nnk in nklist:
         #print(nnk)
-        res=sums.F2KSS(e,L,nnk,2,m1,2,m2,alpha) 
+        res=sums.F2KSS(e,L,nnk,2,m1,2,m2,alpha)
         F2_22.append(res)
 
     return np.diag(F2_22)
 
 
 def full_F2_20_matrix(e,L):
-    
+
     F2_20 = F2_20_matrix(e,L,-2)
     F2_20 = np.vstack((F2_20, F2_20_matrix(e,L,-1)))
     F2_20 = np.vstack((F2_20, F2_20_matrix(e,L,0)))
@@ -421,7 +421,7 @@ def full_F2_02_matrix(e,L):
 
 # TB: edited this like I did for Gmatrix.G22
 def full_F2_22_matrix(e,L):
-    
+
     F2_22_m2 = F2_22_matrix(e,L,-2,-2)
     F2_22_m2 = np.hstack((F2_22_m2, F2_22_matrix(e,L,-2,-1)))
     F2_22_m2 = np.hstack((F2_22_m2, F2_22_matrix(e,L,-2,0)))
@@ -454,7 +454,7 @@ def full_F2_22_matrix(e,L):
 
 
     F2_22 = np.vstack((F2_22_m2, F2_22_m1, F2_22_0, F2_22_p1, F2_22_p2))
-    
+
     return F2_22
 
 # full Ftilde matrix (should let alphaKSS be input)

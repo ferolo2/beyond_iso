@@ -22,12 +22,12 @@ def K2inv(E,kvec,l,m,a0,r0,P0,a2):
     out = 1/(32*pi*omk*E2star) * ( -1/a0 + r0*qk**2/2 + P0*r0**3*qk**4 + abs(qk)*(1-h))
 
   elif l==2 and -2<=m<=2:
-    # out = 1/(32*pi*omk*E2star*qk**4) * ( -1/a2**5 + abs(qk)**5*(1-h) )
+    #out = 1/(32*pi*omk*E2star*qk**4) * ( -1/a2**5 + abs(qk)**5*(1-h) )
     out = 1/(32*pi*omk*E2star) * ( -1/a2**5 + abs(qk)**5*(1-h) ) # TB, no q
 
   else:
     return 0
-  
+
   if out.imag > 1e-15:
     print('Error in K2inv: imaginary part in output')
   else:
@@ -105,7 +105,7 @@ def K2inv_mat2(E,L,a2):
   #   K2inv2[i] = K2inv(E,kvec,2,0,0,0,0,a2)
 
   K2_block = np.diag(K2inv2)
-    
+
   return np.kron(np.identity(5),K2_block)
 
 # Note: 20 and 02 blocks of K2inv are zero
