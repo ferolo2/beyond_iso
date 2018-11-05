@@ -12,11 +12,11 @@ from projections import l2_proj
 
 from numba import jit
 
-@jit(nopython=True,fastmath=True)
+@jit(nopython=True,fastmath=True,cache=True)
 def sqrt(x):
     return np.sqrt(x)
 
-@jit(nopython=True,fastmath=True,parallel=True)
+@jit(nopython=True,fastmath=True,cache=True)
 def myabs(x):
     return abs(x)
 

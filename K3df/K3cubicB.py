@@ -37,6 +37,7 @@ def K3cubicB(E,pvec,lp,mp,kvec,l,m):
   t = K3_defns.T(E,pvec,kvec)
   u = np.outer(p12t_stark_vec, p12_starp_vec)  # tensor needed for full U
 
+  
   if lp==l==mp==m==0:
     out = p3_p3t**3 + 1/4*( (p12_p3t)**3 + (p3_p12t)**3 ) + p12_p3t*pstark**2*a**2 + p3_p12t*kstarp**2*ap**2 \
     + 1/16*p12_p12t**3 + 1/4*p12_p12t*( p12t_stark**2*a**2 + p12_starp**2*ap**2 ) \

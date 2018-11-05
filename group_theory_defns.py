@@ -4,7 +4,7 @@ from itertools import permutations as perms
 import defns
 
 from numba import jit 
-@jit(nopython=True,fastmath=True)
+@jit(nopython=True,fastmath=True,cache=True)
 def sqrt(x):
     return np.sqrt(x)
 

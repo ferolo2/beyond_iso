@@ -4,11 +4,14 @@ import numpy as np
 import sums_alt as sums
 import F2_alt as F2
 from defns import y2, y2real, list_nnk, lm_idx, chop, full_matrix
-from numba import jit
+from numba import jit,njit
 
 @jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%
 def npsqrt(x):
     return np.sqrt(x)
+@jit(nopython=True,fastmath=True) #FRL, this speeds up like 5-10%
+def square(x):
+    return x**2
 
 @jit(nopython=True,parallel=True,fastmath=True) #FRL this speeds up scalar prod of two vectors. DONT use for matrices.
 def mydot(x,y):
@@ -34,16 +37,17 @@ def rho1mH(e, L, nk):
     else:
         return 0.
 
-
+@njit(fastmath=True,cache=True)
 def boost(nnp, nnk,e):
-    nnppar = [0,0,0]
+    nnppar = np.array([0.,0.,0.])
     if(sums.norm(nnk)>0):
-        nnppar = np.multiply(mydot(nnk,nnp)/sums.norm(nnk)**2, nnk)
+ #       nnppar = np.multiply(mydot(nnk,nnp)/sums.norm(nnk)**2, nnk)
+        nnppar = nnk*(mydot(nnk,nnp)/sums.norm(nnk)**2)
     nnpperp = nnp - nnppar
 
     gamma = sums.gam(e, sums.norm(nnk))
-    omp = npsqrt(1+sums.norm(nnp)**2)
-    omk = npsqrt(1+sums.norm(nnk)**2)
+    omp = npsqrt(1+square(sums.norm(nnp)))
+    omk = npsqrt(1+square(sums.norm(nnk)))
 
     nnpparboost = np.multiply(nnppar, gamma) + np.multiply( np.multiply(nnk, gamma), (omp)/(e-omk ))
 
@@ -53,12 +57,15 @@ def boost(nnp, nnk,e):
 
 # Calculate Gtilde = G/(2*omega)
 # TB: Choose basis inside
+#@njit(fastmath=True,cache=True)
+@njit(fastmath=True,cache=True)
 def G(e, L, nnp, nnk,l1,m1,l2,m2):
     p = sums.norm(nnp) * 2. *math.pi/L
     k = sums.norm(nnk) * 2. *math.pi/L
+#    pk = sums.norm(np.add(nnk,nnp)) * 2. *math.pi/L
     pk = sums.norm(np.add(nnk,nnp)) * 2. *math.pi/L
-    omp = npsqrt(1+p**2)
-    omk = npsqrt(1+k**2)
+    omp = npsqrt(1+square(p))
+    omk = npsqrt(1+square(k))
     #ompk = np.sqrt(1+pk**2)
 
     bkp2 = (e-omp-omk)**2 - (2*math.pi/L)**2*sums.norm(np.add(nnk,nnp))**2
@@ -68,8 +75,8 @@ def G(e, L, nnp, nnk,l1,m1,l2,m2):
     nnks = boost(np.multiply(nnk, 2*math.pi/L), np.multiply(nnp, 2*math.pi/L), e)
     #ps = sums.norm(nnps)
     #ks = sums.norm(nnks)
-    qps2 = (e - omp)**2/4 - p**2/4 - 1
-    qks2 = (e - omk)**2/4 - k**2/4 - 1
+    qps2 = square(e - omp)/4 - square(p)/4 - 1
+    qks2 = square(e - omk)/4 - square(k)/4 - 1
 
     # TB: Choose spherical harmonic basis
     Ytype = 'r' # 'r' for real, 'c' for complex
@@ -115,7 +122,7 @@ def Gmat(E,L):
         for i2 in range(6):
           [l2,m2] = lm_idx(i2)
 
-          Gpk[i1,i2] = G(E,L,nnp,nnk,l1,m1,l2,m2)
+          Gpk[i1,i2] = G(E,L,np.array(nnp),np.array(nnk),l1,m1,l2,m2)
 
       Gp.append(Gpk)
 
